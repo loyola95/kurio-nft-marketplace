@@ -106,7 +106,7 @@ export function Blog() {
           Histórias, guias e insights para colecionadores sobre o universo da propriedade digital.
         </p>
       </header>
-      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-[repeat(4,268px)]">
+      <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {POSTS.map((post) => (
           <li key={post.title}>
             <article className="relative flex h-full flex-col overflow-hidden rounded-lg bg-surface">
