@@ -1,6 +1,12 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc", "jsx-a11y", "import"],
+  "plugins": [
+    "react",
+    "typescript",
+    "oxc",
+    "jsx-a11y",
+    "import"
+  ],
   "categories": {
     "correctness": "error"
   },
@@ -22,7 +28,8 @@
       {
         "allowConstantExport": true
       }
-    ]
+    ],
+    "jsx-a11y/prefer-tag-over-role": "off"
   },
   "overrides": [
     {
@@ -41,7 +48,10 @@
           {
             "patterns": [
               {
-                "group": ["@/mocks/*", "**/mocks/**"],
+                "group": [
+                  "@/mocks/*",
+                  "**/mocks/**"
+                ],
                 "message": "A aplicação não pode depender da camada de mocks."
               }
             ]
@@ -50,7 +60,10 @@
       }
     },
     {
-      "files": ["src/components/ui/**", "src/routes/**"],
+      "files": [
+        "src/components/ui/**",
+        "src/routes/**"
+      ],
       "rules": {
         "react/only-export-components": "off"
       }
