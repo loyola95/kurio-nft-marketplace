@@ -5,6 +5,7 @@ import { controlHandlers } from './control'
 import { eventControlHandlers } from './control-events'
 import { favoriteHandlers } from './favorites'
 import { nftHandlers } from './nfts'
+import { profileHandlers } from './profile'
 
 export const handlers = [
   ...controlHandlers,
@@ -14,5 +15,6 @@ export const handlers = [
   ...nftHandlers,
   ...favoriteHandlers,
   ...cartHandlers,
+  ...profileHandlers,
   ...realtimeHandlers,
 ]

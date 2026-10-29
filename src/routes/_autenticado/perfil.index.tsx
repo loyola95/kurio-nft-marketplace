@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PageShell } from '@/features/layout/PageShell'
+import { ProfilePage } from '@/features/profile/components/ProfilePage'
 
 export const Route = createFileRoute('/_autenticado/perfil/')({
-  component: () => <PageShell title="Perfil do colecionador" />,
+  component: ProfilePage,
 })

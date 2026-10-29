@@ -130,8 +130,4 @@ test.describe('conta e sessão', () => {
     await page.keyboard.press('Escape')
     await expect(page).toHaveURL(/\/(\?.*)?$/)
   })
-
-  test.fixme('sessão expira durante salvar o perfil', async () => {
-    // Review Focus 5: depende do formulário de perfil (Tarefa 14).
-  })
 })

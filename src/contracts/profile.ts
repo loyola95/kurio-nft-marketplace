@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { PASSWORD_RULE, USERNAME_RULE } from './auth'
+import { ENS_NAME } from './wallet'
 
 export const Profile = z.object({
   displayName: z.string(),
@@ -25,11 +26,17 @@ export const UpdateProfileInput = z.object({
     .max(24, 'Use no máximo 24 caracteres')
     .regex(USERNAME_RULE, 'Use letras, números, ponto ou sublinhado'),
   email: z.email('Informe um e-mail válido'),
-  ensName: z.union([
-    z.string().regex(/^[a-z0-9-]+\.eth$/i, 'O nome ENS termina em .eth'),
-    z.literal(''),
-  ]),
-  walletNickname: z.string().trim().max(40, 'Use no máximo 40 caracteres'),
+  // Campos com asterisco no Figma: obrigatórios.
+  ensName: z
+    .string()
+    .trim()
+    .min(1, 'Informe o nome ENS')
+    .regex(ENS_NAME, 'O nome ENS termina em .eth'),
+  walletNickname: z
+    .string()
+    .trim()
+    .min(1, 'Informe o apelido da carteira')
+    .max(40, 'Use no máximo 40 caracteres'),
 })
 export type UpdateProfileInput = z.infer<typeof UpdateProfileInput>
 
