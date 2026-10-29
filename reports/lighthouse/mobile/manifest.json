@@ -1,0 +1,74 @@
+[
+  {
+    "url": "http://localhost:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost--2026_10_29_23_05_58.report.html",
+    "jsonPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost--2026_10_29_23_05_58.report.json",
+    "summary": {
+      "performance": 0.5,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost--2026_10_29_23_06_30.report.html",
+    "jsonPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost--2026_10_29_23_06_30.report.json",
+    "summary": {
+      "performance": 0.52,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/nft/emerald-ape-042",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost-nft_emerald_ape_042-2026_10_29_23_07_29.report.html",
+    "jsonPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost-nft_emerald_ape_042-2026_10_29_23_07_29.report.json",
+    "summary": {
+      "performance": 0.55,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/nft/emerald-ape-042",
+    "isRepresentativeRun": false,
+    "htmlPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost-nft_emerald_ape_042-2026_10_29_23_08_26.report.html",
+    "jsonPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost-nft_emerald_ape_042-2026_10_29_23_08_26.report.json",
+    "summary": {
+      "performance": 0.52,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost--2026_10_29_23_07_00.report.html",
+    "jsonPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost--2026_10_29_23_07_00.report.json",
+    "summary": {
+      "performance": 0.55,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  },
+  {
+    "url": "http://localhost:4173/nft/emerald-ape-042",
+    "isRepresentativeRun": true,
+    "htmlPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost-nft_emerald_ape_042-2026_10_29_23_07_57.report.html",
+    "jsonPath": "C:\\dev\\jungle-nft-marketplace\\reports\\lighthouse\\mobile\\localhost-nft_emerald_ape_042-2026_10_29_23_07_57.report.json",
+    "summary": {
+      "performance": 0.52,
+      "accessibility": 1,
+      "best-practices": 1,
+      "seo": 1
+    }
+  }
+]
