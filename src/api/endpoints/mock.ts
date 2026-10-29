@@ -16,4 +16,5 @@ export const mockControl = {
   emitStaleEvent: () => http.post('/__mock/events/stale'),
   dropRealtime: () => http.post('/__mock/realtime/drop'),
   expireSession: () => http.post('/__mock/session/expire'),
+  disconnectWallet: () => http.post('/__mock/wallet/disconnect'),
 }

@@ -32,6 +32,7 @@ function rethrow(error: unknown): never {
   if (error instanceof CartError) {
     throw new MockHttpError(STATUS[error.code] ?? 400, error.code, error.message, {
       fieldErrors: error.fieldErrors,
+      details: error.details,
     })
   }
   throw error
@@ -45,7 +46,7 @@ function owner(request: Request): { key: string; ownerType: MockCart['ownerType'
   return { key: `guest:${guestId}`, ownerType: 'guest' }
 }
 
-const finder =
+export const finder =
   (state: MockState): FindEdition =>
   (nftId, editionId) => {
     const nft = findNft(state, nftId)

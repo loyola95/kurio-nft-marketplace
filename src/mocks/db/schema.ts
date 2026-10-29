@@ -90,8 +90,8 @@ export interface MockOrder extends Order {
   bodyHash: string
   resolveAt: string
   outcome: 'confirmed' | 'declined'
-  /** Itens do carrinho comprados (id do item e quantidade). */
-  purchased: { itemId: string; nftId: string; editionId: string; quantity: number }[]
+  /** Edições e quantidades compradas (saem do carrinho na confirmação). */
+  purchased: { nftId: string; editionId: string; quantity: number }[]
 }
 
 export interface MockWalletConnection extends WalletConnection {
@@ -114,4 +114,6 @@ export interface MockState {
   sequence: number
   lastEvent: unknown | null
   scenario: ScenarioName
+  /** Efeitos únicos do cenário já aplicados (ex.: preço que muda uma vez no checkout). */
+  scenarioEffects: string[]
 }

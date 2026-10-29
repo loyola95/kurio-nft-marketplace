@@ -6,7 +6,7 @@ import { formatEth } from '@/lib/money'
 import { cn } from '@/lib/utils'
 import { useApplyCoupon, useRemoveCoupon } from '../queries'
 
-function CouponForm({ cart }: { cart: Cart }) {
+export function CouponForm({ cart }: { cart: Cart }) {
   const apply = useApplyCoupon()
   const remove = useRemoveCoupon()
   const [code, setCode] = useState('')

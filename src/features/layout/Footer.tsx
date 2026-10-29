@@ -140,7 +140,7 @@ export function Footer() {
           <div className="flex flex-col gap-8">
             <div className="flex flex-col gap-5">
               <h2 className="text-lg leading-4 font-bold">Redes sociais</h2>
-              <ul className="flex gap-2.5">
+              <ul className="flex flex-wrap gap-2.5">
                 {SOCIAL.map((s) => (
                   <li key={s.label}>
                     <a

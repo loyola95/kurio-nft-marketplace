@@ -7,15 +7,25 @@ import type { MockCart, MockCartItem, MockCoupon, MockNft } from '../db/schema'
 
 // Regras do carrinho em funções puras: o handler só lê/grava o banco e responde.
 
-export class CartError extends Error {
+/** Regra de negócio violada; o handler traduz para o envelope de erro da API. */
+export class DomainError extends Error {
   readonly code: ErrorCode
   readonly fieldErrors?: Record<string, string>
-  constructor(code: ErrorCode, message: string, fieldErrors?: Record<string, string>) {
+  readonly details?: unknown
+  constructor(
+    code: ErrorCode,
+    message: string,
+    fieldErrors?: Record<string, string>,
+    details?: unknown,
+  ) {
     super(message)
     this.code = code
     this.fieldErrors = fieldErrors
+    this.details = details
   }
 }
+
+export { DomainError as CartError }
 
 export type FindEdition = (
   nftId: string,
@@ -65,12 +75,12 @@ export function resolveCoupon(coupons: MockCoupon[], rawCode: string, now: numbe
   const code = rawCode.trim().toUpperCase()
   const coupon = coupons.find((c) => c.code === code)
   if (!coupon) {
-    throw new CartError('COUPON_INVALID', 'Código promocional inválido.', {
+    throw new DomainError('COUPON_INVALID', 'Código promocional inválido.', {
       code: 'Código promocional inválido.',
     })
   }
   if (Date.parse(coupon.expiresAt) <= now) {
-    throw new CartError('COUPON_EXPIRED', 'Este código promocional expirou.', {
+    throw new DomainError('COUPON_EXPIRED', 'Este código promocional expirou.', {
       code: 'Este código promocional expirou.',
     })
   }
@@ -94,7 +104,7 @@ export function addItem(
   )
   const max = maxQuantityOf(edition)
   const quantity = (existing?.quantity ?? 0) + input.quantity
-  if (quantity > max) throw new CartError('AVAILABILITY_CONFLICT', limitMessage(max))
+  if (quantity > max) throw new DomainError('AVAILABILITY_CONFLICT', limitMessage(max))
   const items = existing
     ? cart.items.map((i) =>
         i === existing ? { ...i, quantity, seenUnitPriceEth: edition.priceEth } : i,
@@ -115,7 +125,7 @@ export function addItem(
 
 export function setQuantity(cart: MockCart, itemId: string, quantity: number, edition: Edition) {
   const max = maxQuantityOf(edition)
-  if (quantity > max) throw new CartError('AVAILABILITY_CONFLICT', limitMessage(max))
+  if (quantity > max) throw new DomainError('AVAILABILITY_CONFLICT', limitMessage(max))
   return {
     ...cart,
     // Mexer no item confirma o preço atual (some o aviso de preço alterado).

@@ -27,6 +27,9 @@ function RootLayout() {
   const profilePage = pathname.startsWith('/perfil')
   // O frame mobile do carrinho termina no resumo, sem rodapé.
   const cartPage = pathname === '/carrinho'
+  // O frame mobile do pagamento também não tem rodapé; a confirmação é um cartão sobre o fundo.
+  const checkoutPage = pathname === '/pagamento'
+  const orderPage = pathname.startsWith('/pedidos/')
   useAuthErrorHandler()
   return (
     <RealtimeProvider>
@@ -49,8 +52,8 @@ function RootLayout() {
         <div
           className={cn(
             withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6',
-            (authPage || cartPage) && 'hidden md:block',
-            profilePage && 'hidden',
+            (authPage || cartPage || checkoutPage) && 'hidden md:block',
+            (profilePage || orderPage) && 'hidden',
           )}
         >
           <Footer />

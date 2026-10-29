@@ -57,6 +57,7 @@ export const scenario = {
   set(name: ScenarioName) {
     db.update((s) => {
       s.scenario = name
+      s.scenarioEffects = []
     })
     // Recria o controlador para reiniciar contadores e a seed: cenário reproduzível.
     network = createNetworkController(name)

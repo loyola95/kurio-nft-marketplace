@@ -4,6 +4,7 @@ import { toast } from 'sonner'
 import { sessionStore } from '@/api/identity'
 import type { Cart } from '@/contracts/cart'
 import type { RealtimeEvent } from '@/contracts/events'
+import type { Order } from '@/contracts/order'
 import { REALTIME_EVENTS } from '@/contracts/events'
 import { useSession } from '@/features/auth/session'
 import { announce } from '@/features/layout/announce'
@@ -64,6 +65,15 @@ export function RealtimeProvider({ children }: { children: ReactNode }) {
 /** Feedback visível e acessível quando um item do carrinho muda. */
 function notify(qc: ReturnType<typeof useQueryClient>, event: RealtimeEvent) {
   if (event.type !== 'nft.updated') return
+  // Estoque que mudou pela própria compra da pessoa não é aviso para ela.
+  const ownOrders = qc.getQueriesData<Order>({ queryKey: ['user'] })
+  const bought = ownOrders.some(
+    ([key, order]) =>
+      key[2] === 'orders' &&
+      order?.receipt?.lines?.some((l) => l.nftId === event.data.nftId) &&
+      Date.now() - Date.parse(order.updatedAt) < 60_000,
+  )
+  if (bought) return
   const carts = qc.getQueriesData<Cart>({ queryKey: ['cart'] })
   const item = carts.flatMap(([, c]) => c?.items ?? []).find((i) => i.nftId === event.data.nftId)
   if (!item) return
