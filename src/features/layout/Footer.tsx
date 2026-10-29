@@ -71,7 +71,10 @@ const SOCIAL: { icon: IconName; label: string; href: string }[] = [
 export function Footer() {
   return (
     <footer className="text-foreground">
-      <section aria-label="Serviços" className="rounded-t-none bg-surface p-6 lg:p-8">
+      <section
+        aria-label="Serviços"
+        className="rounded-t-none bg-surface p-6 lg:px-8 lg:pt-8 lg:pb-4"
+      >
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-[repeat(3,minmax(0,1fr))_minmax(0,357px)] lg:gap-0">
           {SERVICES.map((s) => (
             <div
@@ -94,7 +97,7 @@ export function Footer() {
         </div>
       </section>
 
-      <div className="bg-surface-3 px-6 py-8 lg:px-8">
+      <div className="bg-surface-3 px-6 py-8 lg:px-8 lg:py-[22px]">
         <div className="grid gap-4 text-sm leading-[22px] md:grid-cols-4 md:items-center">
           <Link to="/" className="text-sm font-bold">
             KURIO
@@ -157,7 +160,7 @@ export function Footer() {
           </div>
         </div>
       </div>
-      <p className="py-1 text-center text-sm leading-[30px]">
+      <p className="py-1 text-center text-sm leading-[30px] lg:py-0">
         © 2026 Kurio. Propriedade digital para todos.
       </p>
     </footer>

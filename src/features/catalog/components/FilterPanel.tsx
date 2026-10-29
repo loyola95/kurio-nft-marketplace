@@ -14,11 +14,14 @@ function FacetRow({
   count,
   selected,
   onToggle,
+  boldCount = false,
 }: {
   label: string
   count: number
   selected: boolean
   onToggle: () => void
+  /** No Figma as contagens de Coleções são em negrito e as de Rede, não. */
+  boldCount?: boolean
 }) {
   return (
     <li>
@@ -27,24 +30,18 @@ function FacetRow({
         aria-pressed={selected}
         onClick={onToggle}
         className={cn(
-          'flex h-10 w-full items-center justify-between gap-2 text-left text-[15px] leading-10 transition-colors hover:text-highlight',
+          'relative flex h-10 w-full items-center justify-between gap-2 text-left text-[15px] leading-10 transition-colors hover:text-highlight',
           selected ? 'text-highlight' : 'text-text-2',
         )}
       >
-        <span className="flex items-center gap-2">
-          {/* Estado não depende só da cor: o check aparece quando o filtro está ativo. */}
-          <span
-            aria-hidden
-            className={cn(
-              'grid size-3.5 place-items-center rounded-[3px] border text-[10px] leading-none',
-              selected ? 'border-highlight bg-highlight text-background' : 'border-border-strong',
-            )}
-          >
-            {selected ? '✓' : ''}
+        {/* Estado não depende só da cor: o check ocupa o recuo de 12px da lista quando ativo. */}
+        {selected && (
+          <span aria-hidden className="absolute -left-3 text-[11px] leading-none">
+            ✓
           </span>
-          {label}
-        </span>
-        <span className={selected ? 'font-bold' : undefined}>({count})</span>
+        )}
+        <span>{label}</span>
+        <span className={boldCount ? 'font-bold' : undefined}>({count})</span>
       </button>
     </li>
   )
@@ -73,7 +70,7 @@ function PriceFilter({ range }: { range: Facets['priceRange'] }) {
         onValueChange={(v) => setValue([v[0], v[1]])}
         thumbLabels={['Preço mínimo', 'Preço máximo']}
         getValueText={(v) => `${v.toFixed(2).replace('.', ',')} ETH`}
-        className="py-1"
+        className="h-[21px]"
       />
       <p id={labelId} className="text-[15px] leading-5">
         Preço: {text}
@@ -81,7 +78,7 @@ function PriceFilter({ range }: { range: Facets['priceRange'] }) {
       <Button
         type="button"
         size="sm"
-        className="h-9 w-[92px] px-3"
+        className="h-9 w-[92px] rounded-md px-3 text-base leading-5 font-bold"
         onClick={() =>
           update({
             precoMin: value[0] > min ? value[0].toFixed(2) : undefined,
@@ -113,6 +110,7 @@ export function FilterPanel({ facets }: { facets: Facets | undefined }) {
                   count={c.count}
                   selected={search.categorias?.includes(c.id) ?? false}
                   onToggle={() => toggle('categorias', c.id)}
+                  boldCount
                 />
               ))
             : Array.from({ length: 9 }, (_, i) => (

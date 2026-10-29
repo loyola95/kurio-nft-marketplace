@@ -29,7 +29,7 @@ const NETWORK_COUNTS: [Network, number][] = [
 type Artwork = 'emerald-ape' | 'sage-nomad' | 'ivory-baron' | 'golden-beat'
 
 const NOUNS: Record<string, { art: Artwork; collection: string; traits: string[] }> = {
-  Ape: { art: 'emerald-ape', collection: 'Kurio Apes', traits: ['Óculos', 'Jaqueta', 'Colar'] },
+  Ape: { art: 'emerald-ape', collection: 'Kurio Apes', traits: ['Óculos', 'Esmeralda'] },
   Monarch: { art: 'emerald-ape', collection: 'Kurio Apes', traits: ['Coroa', 'Jaqueta'] },
   Nomad: { art: 'sage-nomad', collection: 'Nomad Society', traits: ['Chapéu', 'Moletom'] },
   Bloom: { art: 'sage-nomad', collection: 'Nomad Society', traits: ['Flores', 'Moletom'] },
@@ -70,10 +70,20 @@ const FIGMA_GRID: {
   price: string
   compareAt?: string
   badge?: 'RARO'
+  /** Raro nos atributos sem selo no card (Emerald Ape no Figma desktop). */
+  rare?: boolean
 }[] = [
-  { adjective: 'Emerald', noun: 'Ape', number: 42, price: '1.19', badge: 'RARO' },
+  { adjective: 'Emerald', noun: 'Ape', number: 42, price: '1.19', rare: true },
   { adjective: 'Sage', noun: 'Nomad', number: 9, price: '1.69' },
-  { adjective: 'Neon', noun: 'Vessel', number: 552, price: '1.99', compareAt: '2.29' },
+  // Selo RARO no 3º card, como no frame mobile (P-3).
+  {
+    adjective: 'Neon',
+    noun: 'Vessel',
+    number: 552,
+    price: '1.99',
+    compareAt: '2.29',
+    badge: 'RARO',
+  },
   { adjective: 'Cosmic', noun: 'Bloom', number: 118, price: '1.29' },
   { adjective: 'Violet', noun: 'Nomad', number: 314, price: '1.39' },
   { adjective: 'Ivory', noun: 'Baron', number: 88, price: '1.79' },
@@ -81,6 +91,10 @@ const FIGMA_GRID: {
   { adjective: 'Golden', noun: 'Signal', number: 160, price: '0.39' },
   { adjective: 'Golden', noun: 'Frequency', number: 71, price: '0.59' },
 ]
+
+// Texto do frame "Desktop / Detalhes do NFT" (coleção ajustada para Kurio Apes, como no resto da tela).
+const EMERALD_LONG_DESCRIPTION =
+  'Emerald Ape #042 é uma obra digital 1/50 finalizada à mão da coleção Kurio Apes. Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.\n\nA propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrada na rede. Nova Sato recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e lançamentos da comunidade.'
 
 const REVIEWERS = [
   'Lia M.',
@@ -198,11 +212,13 @@ export function buildNfts(): MockNft[] {
     let price: string
     let compareAt: string | null = null
     let badge: 'RARO' | null = null
+    let rare = false
     if (i < FIGMA_GRID.length) {
       const g = FIGMA_GRID[i]
       ;({ adjective, noun, number, price } = g)
       compareAt = g.compareAt ?? null
       badge = g.badge ?? null
+      rare = g.rare ?? false
     } else {
       do {
         adjective = pick(rand, ADJECTIVES)
@@ -261,14 +277,17 @@ export function buildNfts(): MockNft[] {
       listedAt: new Date(BASE_DATE - i * 3_600_000).toISOString(),
       popularity: i < 9 ? 1000 - i * 7 : randomInt(rand, 1, 990),
       description: `Um colecionável digital finalizado à mão da coleção ${meta.collection}, verificado na ${networkLabel}, com arte desbloqueável e acesso para colecionadores.`,
-      longDescription: `${name} é uma obra digital finalizada à mão da coleção ${meta.collection}. Cada atributo fica armazenado nos metadados do token e verificado na ${networkLabel}. A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência na rede.`,
+      longDescription:
+        id === 'emerald-ape-042'
+          ? EMERALD_LONG_DESCRIPTION
+          : `${name} é uma obra digital finalizada à mão da coleção ${meta.collection}. Cada atributo fica armazenado nos metadados do token e verificado na ${networkLabel}. A propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência na rede.`,
       tokenId: `#${String(number).padStart(4, '0')}`,
       contract:
         id === 'emerald-ape-042'
           ? '0x7A42...19E8'
           : `0x${hex(rand, 4).toUpperCase()}...${hex(rand, 4).toUpperCase()}`,
       royaltiesPct: 5,
-      attributes: [...meta.traits, badge === 'RARO' ? 'Raro' : 'Comum'],
+      attributes: [...meta.traits, badge === 'RARO' || rare ? 'Raro' : 'Comum'],
       reviews,
       editions,
       version: 1,

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { Icon } from '@/components/icon'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
@@ -79,42 +80,93 @@ export function Hero() {
   )
 }
 
-/** Banner do topo no frame "Mobile / Início". */
+// Brilhos circulares do banner mobile (Ellipse 49 e 50 do Figma).
+const GLOW =
+  'pointer-events-none absolute size-[248px] rounded-full bg-[linear-gradient(160deg,rgb(221_154_95/0.43),rgb(210_138_76/0.04))]'
+
+/** Banner do topo no frame "Mobile / Início": texto à esquerda, duas artes sobrepostas à direita. */
 export function MobileHero() {
   const { data } = useQuery(featuredOptions)
-  const nft = data?.hero[0]
+  const [index, setIndex] = useState(0)
+  const slides = data?.hero ?? []
+  const current = slides[index]
+  const next = slides.length > 1 ? slides[(index + 1) % slides.length] : undefined
+
   return (
     <section
       aria-labelledby="hero-mobile-titulo"
-      className="relative h-[190px] overflow-hidden rounded-xl bg-surface md:hidden"
+      className="relative h-[190px] overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,rgb(210_138_76/0.2),rgb(210_138_76/0.1))] md:hidden"
     >
-      {nft ? (
-        <NftImage
-          image={nft.image}
-          priority
-          sizes="100vw"
-          alt=""
-          className="absolute inset-0 h-full w-full opacity-35"
-        />
-      ) : (
-        <Skeleton className="absolute inset-0 rounded-none" />
-      )}
-      <div className="relative flex h-full flex-col justify-center gap-4 p-4">
-        <div className="flex flex-col gap-1">
-          <p className="text-xs font-medium">Bem-vindo à Kurio</p>
-          <h1 id="hero-mobile-titulo" className="text-[22px] leading-[29px] font-bold">
-            SEJA DONO DA CULTURA DIGITAL
+      <span aria-hidden className={cn(GLOW, '-top-[31px] -left-20')} />
+      <span aria-hidden className={cn(GLOW, '-top-2.5 left-[73px] opacity-85')} />
+
+      <div className="relative flex h-full gap-2 px-4 pt-1.5 pb-7">
+        <div className="flex w-[188px] shrink-0 flex-col">
+          <p className="text-xs leading-4 font-medium">Bem-vindo à Kurio</p>
+          <h1 id="hero-mobile-titulo" className="mt-1.5 text-lg leading-[29px] font-bold">
+            SEJA DONO DA
+            <br />
+            CULTURA DIGITAL
           </h1>
-          <p className="text-xs leading-4 text-text-2">
+          <p className="mt-1.5 text-xs leading-[18px] text-text-2">
             Descubra NFTs selecionados de criadores do mundo todo.
           </p>
-        </div>
-        <Button asChild size="sm" className="w-fit">
-          <Link to="/" hash="catalogo">
+          <Link
+            to="/"
+            hash="catalogo"
+            className="mt-auto flex w-fit items-center gap-2 text-xs leading-[14px] font-bold text-highlight hover:underline"
+          >
             EXPLORAR
+            <Icon name="arrow-right" size={16} className="text-primary" />
           </Link>
-        </Button>
+        </div>
+
+        <div className="relative mt-[5px] size-[138px] shrink-0">
+          {current ? (
+            <Link to="/nft/$nftId" params={{ nftId: current.id }} className="block">
+              <NftImage
+                image={current.image}
+                priority
+                sizes="138px"
+                className="size-[138px] rounded-2xl"
+                alt={`${current.name}, NFT em destaque`}
+              />
+            </Link>
+          ) : (
+            <Skeleton className="size-full rounded-2xl" />
+          )}
+          {next && (
+            <NftImage
+              image={next.image}
+              sizes="58px"
+              alt=""
+              className="absolute top-[88px] left-3.5 size-[58px] rounded-2xl"
+            />
+          )}
+        </div>
       </div>
+
+      {slides.length > 1 && (
+        <div
+          role="group"
+          aria-label="Destaques"
+          className="absolute bottom-[5px] left-1/2 flex -translate-x-1/2 gap-1.5"
+        >
+          {slides.map((s, i) => (
+            <button
+              key={s.id}
+              type="button"
+              aria-label={`Mostrar destaque ${i + 1}: ${s.name}`}
+              aria-pressed={i === index}
+              onClick={() => setIndex(i)}
+              className={cn(
+                'relative size-[7px] rounded-full bg-primary transition-opacity after:absolute after:-inset-2',
+                i === index ? 'opacity-100' : 'opacity-60',
+              )}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

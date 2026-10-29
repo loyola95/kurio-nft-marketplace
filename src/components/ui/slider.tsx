@@ -32,7 +32,7 @@ function Slider({
       className={cn('relative flex w-full touch-none items-center select-none', className)}
       {...props}
     >
-      <SliderPrimitive.Track className="relative h-1 grow overflow-hidden rounded-full bg-primary/40">
+      <SliderPrimitive.Track className="relative h-1 grow overflow-hidden rounded-full bg-primary">
         <SliderPrimitive.Range className="absolute h-full bg-primary" />
       </SliderPrimitive.Track>
       {values.map((v, index) => (
@@ -40,7 +40,7 @@ function Slider({
           key={index}
           aria-label={thumbLabels?.[index]}
           aria-valuetext={getValueText?.(v)}
-          className="block size-[15px] rounded-full border-[3px] border-background bg-primary outline-none after:absolute after:-inset-3 focus-visible:ring-2 focus-visible:ring-highlight"
+          className="block size-[21px] rounded-full border-[3px] border-background bg-primary outline-none after:absolute after:-inset-3 focus-visible:ring-2 focus-visible:ring-highlight"
         />
       ))}
     </SliderPrimitive.Root>

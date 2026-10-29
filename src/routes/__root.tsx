@@ -29,7 +29,8 @@ function RootLayout() {
       </a>
       <div className="page-container flex min-h-dvh flex-col gap-8 pt-6 md:pt-6">
         <Header withDivider={pathname === '/'} />
-        <main id="conteudo" tabIndex={-1} className="flex-1 outline-none">
+        {/* No Figma o rodapé fica a 96px do conteúdo (gap-8 + mb-16). */}
+        <main id="conteudo" tabIndex={-1} className="flex-1 outline-none md:mb-16">
           <Outlet />
         </main>
         <div className={withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6'}>

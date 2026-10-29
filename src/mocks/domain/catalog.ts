@@ -141,18 +141,24 @@ export function queryCatalog(
 }
 
 export function featured(state: MockState): Featured {
-  const [first, second, third, , , sixth] = state.nfts
+  // O banner lateral do Figma usa a arte do Sage Nomad: Violet Nomad #314 (5º da grade).
+  const [first, second, , , fifth, sixth] = state.nfts
   return {
     hero: [first, second, sixth].map(toSummary),
-    spotlight: toSummary(third),
+    spotlight: toSummary(fifth),
   }
 }
 
 export function related(state: MockState, nft: MockNft): NftSummary[] {
-  return state.nfts
-    .filter((n) => n.id !== nft.id && n.collection === nft.collection)
-    .slice(0, 5)
-    .map(toSummary)
+  const sameCollection = state.nfts.filter(
+    (n) => n.id !== nft.id && n.collection === nft.collection,
+  )
+  // Os 9 NFTs do Figma abrem com a vitrine do frame de detalhe (Cosmic Bloom a Golden Signal).
+  const showcase =
+    state.nfts.indexOf(nft) < 9 ? state.nfts.slice(3, 9).filter((n) => n.id !== nft.id) : []
+  const unique = [...new Map([...showcase, ...sameCollection].map((n) => [n.id, n])).values()]
+  // Até 3 páginas de 5 no carrossel.
+  return unique.slice(0, 15).map(toSummary)
 }
 
 export function findNft(state: MockState, id: string): MockNft | undefined {

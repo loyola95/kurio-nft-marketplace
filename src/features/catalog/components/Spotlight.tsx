@@ -21,7 +21,7 @@ export function Spotlight() {
         <h2 id="destaque-titulo" className="text-2xl leading-8 font-bold text-highlight">
           NFT EM DESTAQUE
         </h2>
-        <p className="text-[22px] leading-4 font-bold">OFERTA LIMITADA</p>
+        <p className="text-center text-[22px] leading-4 font-bold">OFERTA LIMITADA</p>
       </div>
       {nft ? (
         <Link

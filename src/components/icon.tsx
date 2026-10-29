@@ -18,6 +18,7 @@ export type IconName =
   | 'google'
   | 'grid'
   | 'heart'
+  | 'heart-outline'
   | 'home'
   | 'image'
   | 'location'

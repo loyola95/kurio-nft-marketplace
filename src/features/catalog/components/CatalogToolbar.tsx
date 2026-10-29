@@ -18,8 +18,7 @@ export function CatalogTabs() {
     <div
       role="group"
       aria-label="Seção do catálogo"
-      // pb/-mb guardam o sublinhado dentro da área rolável (senão surge barra vertical).
-      className="-mb-1.5 flex gap-4 overflow-x-auto pb-1.5 [scrollbar-width:none] md:gap-5"
+      className="flex gap-4 overflow-x-auto [scrollbar-width:none] md:gap-5 md:overflow-visible"
     >
       {TABS.map((tab) => {
         const selected = tab.id === active
@@ -31,12 +30,15 @@ export function CatalogTabs() {
             onClick={() => update({ aba: tab.id === 'todos' ? undefined : tab.id })}
             className={cn(
               'relative pb-1.5 text-sm leading-4 font-medium whitespace-nowrap hover:text-highlight md:text-[15px]',
-              selected ? 'text-highlight' : 'text-foreground',
+              selected ? 'text-highlight max-md:font-bold' : 'text-foreground max-md:font-normal',
             )}
           >
             {tab.label}
             {selected && (
-              <span aria-hidden className="absolute inset-x-0 -bottom-1.5 h-0.5 bg-primary" />
+              <span
+                aria-hidden
+                className="absolute inset-x-0 bottom-0 h-0.5 bg-primary md:-bottom-0.5"
+              />
             )}
           </button>
         )
@@ -62,7 +64,7 @@ export function SortSelect() {
             const value = e.target.value as CatalogSort
             update({ ordem: value === 'recentes' ? undefined : value })
           }}
-          className="cursor-pointer appearance-none bg-transparent py-0.5 pr-6 text-foreground outline-none focus-visible:outline-2 focus-visible:outline-highlight"
+          className="cursor-pointer appearance-none bg-transparent pr-6 text-foreground outline-none focus-visible:outline-2 focus-visible:outline-highlight"
         >
           {Object.entries(SORT_LABEL).map(([value, label]) => (
             <option key={value} value={value} className="bg-surface text-foreground">

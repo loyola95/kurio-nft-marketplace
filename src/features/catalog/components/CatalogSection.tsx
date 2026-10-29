@@ -40,11 +40,12 @@ export function CatalogSection() {
         <Spotlight />
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col gap-8">
+      <div className="flex min-w-0 flex-1 flex-col gap-4 md:gap-8">
         <h2 id="catalogo-titulo" className="sr-only">
           Catálogo de NFTs
         </h2>
-        <div className="flex flex-wrap items-center justify-between gap-4">
+        {/* Toolbar do Figma: 18px de altura, alinhada pelo topo. */}
+        <div className="flex flex-wrap items-center justify-between gap-4 md:h-[18px] md:items-start">
           <CatalogTabs />
           <div className="hidden items-center gap-4 md:flex">
             <div className="lg:hidden">
@@ -69,7 +70,10 @@ export function CatalogSection() {
 
         <div aria-busy={list.isFetching} className="relative">
           {list.isPending ? (
-            <ul className="grid grid-cols-2 gap-x-4 gap-y-6 md:grid-cols-3 md:gap-x-8 md:gap-y-[72px]">
+            <ul
+              data-stagger
+              className="grid grid-cols-2 gap-x-4 gap-y-6 pb-8 max-md:[&>li:nth-child(even)]:translate-y-8 md:pb-0 md:grid-cols-3 md:gap-x-8 md:gap-y-[72px]"
+            >
               {Array.from({ length: CATALOG_PAGE_SIZE }, (_, i) => (
                 <li key={i}>
                   <NftCardSkeleton />
@@ -100,8 +104,9 @@ export function CatalogSection() {
                 </div>
               )}
               <ul
+                data-stagger
                 className={cn(
-                  'grid grid-cols-2 gap-x-4 gap-y-6 transition-opacity md:grid-cols-3 md:gap-x-8 md:gap-y-[72px]',
+                  'grid grid-cols-2 gap-x-4 gap-y-6 pb-8 max-md:[&>li:nth-child(even)]:translate-y-8 md:pb-0 transition-opacity md:grid-cols-3 md:gap-x-8 md:gap-y-[72px]',
                   refreshing && 'opacity-60',
                 )}
               >
@@ -121,7 +126,7 @@ export function CatalogSection() {
         </div>
 
         {data && data.items.length > 0 && (
-          <div className="mt-6 md:mt-[56px]">
+          <div className="mt-6 md:mt-[44px]">
             <Pagination page={data.page} totalPages={data.totalPages} />
           </div>
         )}

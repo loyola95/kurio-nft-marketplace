@@ -9,10 +9,13 @@ export function FavoriteButton({
   nftId,
   nftName,
   variant = 'button',
+  size = 'md',
 }: {
   nftId: string
   nftName: string
   variant?: 'button' | 'icon'
+  /** sm: 28px (cards mobile); lg: 35px (detalhe mobile). */
+  size?: 'sm' | 'md' | 'lg'
 }) {
   const { status } = useSession()
   const isFavorite = useIsFavorite(nftId)
@@ -39,9 +42,18 @@ export function FavoriteButton({
         onClick={onClick}
         aria-pressed={isFavorite}
         aria-label={label}
-        className="grid size-[30px] place-items-center rounded-full border border-border bg-surface-2 text-foreground hover:border-primary"
+        className={cn(
+          'grid place-items-center rounded-full border border-border bg-surface-2 hover:border-primary',
+          size === 'sm' && 'size-7 text-primary',
+          size === 'md' && 'size-[30px] text-foreground',
+          size === 'lg' && 'size-[35px] text-highlight',
+        )}
       >
-        <Icon name="heart" size={16} className={isFavorite ? 'text-danger' : undefined} />
+        <Icon
+          name={isFavorite ? 'heart' : 'heart-outline'}
+          size={size === 'sm' ? 15 : 16}
+          className={isFavorite ? 'text-danger' : undefined}
+        />
       </button>
     )
   }
@@ -56,7 +68,11 @@ export function FavoriteButton({
         isFavorite && 'bg-primary/15',
       )}
     >
-      <Icon name="heart" size={20} className={isFavorite ? 'text-danger' : undefined} />
+      <Icon
+        name={isFavorite ? 'heart' : 'heart-outline'}
+        size={20}
+        className={isFavorite ? 'text-danger' : undefined}
+      />
       {isFavorite ? 'Favoritado' : 'Favoritar'}
     </button>
   )

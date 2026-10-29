@@ -2,14 +2,7 @@ import { useState } from 'react'
 import type { Image } from '@/contracts/common'
 import { NftImage } from '@/features/catalog/components/NftImage'
 import { cn } from '@/lib/utils'
-
-// O arquivo tem uma arte por NFT; as vistas da galeria são enquadramentos da mesma obra.
-const VIEW_CLASS = [
-  '',
-  'scale-[1.35] object-[50%_30%]',
-  'scale-[1.6] object-[50%_80%]',
-  'scale-[1.2] object-[50%_50%]',
-]
+import { VIEW_CLASS } from '../galleryViews'
 
 export function Gallery({ images, name }: { images: Image[]; name: string }) {
   const [active, setActive] = useState(0)

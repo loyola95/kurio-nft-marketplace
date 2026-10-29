@@ -25,7 +25,7 @@ function HomePage() {
   )
   return (
     <div className="flex flex-col gap-4 md:gap-24">
-      <div className="flex flex-col gap-4 md:hidden">
+      <div className="flex flex-col gap-4 pt-4 md:hidden">
         <div className="flex gap-2">
           <CatalogSearchBar className="flex-1" />
           <MobileCatalogBar />

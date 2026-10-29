@@ -12,17 +12,24 @@ export function EditionSelector({
   editions,
   selectedId,
   onSelect,
+  compact = false,
 }: {
   editions: Edition[]
   selectedId: string
   onSelect: (id: string) => void
+  /** Espaçamentos do frame mobile. */
+  compact?: boolean
 }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className={cn('flex flex-col', compact ? 'gap-2' : 'gap-3')}>
       <p id="edicao-rotulo" className="text-[15px] leading-4 font-bold">
         Edição:
       </p>
-      <div role="radiogroup" aria-labelledby="edicao-rotulo" className="flex flex-wrap gap-1.5">
+      <div
+        role="radiogroup"
+        aria-labelledby="edicao-rotulo"
+        className={cn('flex flex-wrap', compact ? 'gap-3' : 'gap-1.5')}
+      >
         {editions.map((e) => {
           const selected = e.id === selectedId
           const blocked = e.status !== 'available'
@@ -38,7 +45,9 @@ export function EditionSelector({
               title={status ?? undefined}
               onClick={() => !blocked && onSelect(e.id)}
               className={cn(
-                'h-7 rounded-full border px-1.5 text-sm leading-4 transition-colors',
+                'h-7 rounded-full border text-sm leading-4 transition-colors',
+                // Respiros do Figma: 4px, 6px na selecionada e 8px no ABERTA.
+                e.label === 'ABERTA' ? 'px-2' : selected ? 'px-1.5' : 'px-1',
                 selected
                   ? 'border-primary font-medium text-highlight'
                   : 'border-border text-text-2 hover:border-primary',

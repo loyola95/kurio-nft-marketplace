@@ -28,7 +28,7 @@ export function FilterDrawer({
           <button
             type="button"
             aria-label={label}
-            className="relative grid size-[45px] shrink-0 place-items-center rounded-[14px] bg-primary text-primary-foreground"
+            className="relative grid size-[45px] shrink-0 place-items-center rounded-[14px] bg-[linear-gradient(135deg,rgb(210_138_76/0.45),rgb(210_138_76))] text-primary-foreground"
           >
             <Icon name="filter" size={22} />
             {activeCount > 0 && (

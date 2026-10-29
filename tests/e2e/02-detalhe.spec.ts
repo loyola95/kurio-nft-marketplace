@@ -10,8 +10,11 @@ test.describe('detalhe do NFT', () => {
   test('acesso direto mostra os dados do NFT', async ({ page }) => {
     await open(page, '/nft/emerald-ape-042')
     await expect(page.getByRole('heading', { level: 1, name: 'Emerald Ape #042' })).toBeVisible()
-    await expect(page.getByText('19 avaliações de colecionadores')).toBeVisible()
-    await expect(page.getByText('ID do token:')).toBeVisible()
+    // Desktop mostra o texto por extenso; o mobile, o selo "4.8 (19)" com o mesmo nome acessível.
+    await expect(
+      visible(page.getByRole('link', { name: /19 avaliações de colecionadores/ })),
+    ).toBeVisible()
+    await expect(visible(page.getByText('ID do token:'))).toBeVisible()
     await expect(page).toHaveTitle(/Emerald Ape #042/)
     await expect(page.getByRole('radio', { name: '1/50' })).toHaveAttribute('aria-checked', 'true')
   })
