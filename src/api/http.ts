@@ -28,7 +28,13 @@ http.interceptors.response.use(
   (error: unknown) => {
     const apiError = toApiError(error)
     const hadToken = Boolean(sessionStore.getToken())
-    if (hadToken && (apiError.code === 'SESSION_EXPIRED' || apiError.code === 'UNAUTHENTICATED')) {
+    // A checagem de sessão trata o próprio 401 (devolve visitante); o resto avisa a camada de sessão.
+    const isSessionCheck = axios.isAxiosError(error) && error.config?.url === '/auth/session'
+    if (
+      hadToken &&
+      !isSessionCheck &&
+      (apiError.code === 'SESSION_EXPIRED' || apiError.code === 'UNAUTHENTICATED')
+    ) {
       authErrorHandler?.(apiError.code)
     }
     return Promise.reject(apiError)

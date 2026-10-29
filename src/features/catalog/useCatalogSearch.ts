@@ -1,8 +1,8 @@
-import { getRouteApi } from '@tanstack/react-router'
-import { useCallback } from 'react'
-import type { CatalogSearch } from './searchSchema'
+import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useCallback, useMemo } from 'react'
+import { catalogSearchSchema, type CatalogSearch } from './searchSchema'
 
-const route = getRouteApi('/')
+const parseCatalog = (raw: unknown): CatalogSearch => catalogSearchSchema.safeParse(raw).data ?? {}
 
 /**
  * Leitura e escrita do estado do catálogo na URL. Toda mudança de filtro,
@@ -10,14 +10,17 @@ const route = getRouteApi('/')
  * no histórico, então voltar/avançar restaura o estado anterior.
  */
 export function useCatalogSearch() {
-  const search = route.useSearch()
-  const navigate = route.useNavigate()
+  // Não estrito: a Início também aparece atrás do modal de login (/entrar, /cadastro).
+  const raw = useSearch({ strict: false })
+  const search = useMemo(() => parseCatalog(raw), [raw])
+  const navigate = useNavigate()
 
   const update = useCallback(
     (patch: Partial<CatalogSearch>, options: { keepPage?: boolean } = {}) => {
       void navigate({
+        to: '/',
         search: (prev) => {
-          const next = { ...prev, ...patch }
+          const next = { ...parseCatalog(prev), ...patch }
           if (!options.keepPage) next.pagina = undefined
           return next
         },
@@ -39,7 +42,7 @@ export function useCatalogSearch() {
   )
 
   const clear = useCallback(() => {
-    void navigate({ search: {}, resetScroll: false })
+    void navigate({ to: '/', search: {}, resetScroll: false })
   }, [navigate])
 
   const hasFilters = Boolean(

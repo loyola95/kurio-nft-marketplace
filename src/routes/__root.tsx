@@ -1,6 +1,7 @@
 import { Outlet, createRootRouteWithContext, useLocation } from '@tanstack/react-router'
 import type { RouterContext } from '@/app/router'
 import { Toaster } from '@/components/ui/sonner'
+import { cn } from '@/lib/utils'
 import { Announcer } from '@/features/layout/Announcer'
 import { Footer } from '@/features/layout/Footer'
 import { Header } from '@/features/layout/Header'
@@ -8,6 +9,7 @@ import { MobileTabBar } from '@/features/layout/MobileTabBar'
 import { NotFound } from '@/features/layout/NotFound'
 import { ConnectionStatus } from '@/features/layout/ConnectionStatus'
 import { RealtimeProvider } from '@/realtime/RealtimeProvider'
+import { useAuthErrorHandler } from '@/features/auth/useAuthErrorHandler'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
@@ -19,6 +21,9 @@ const TAB_BAR_ROUTES = ['/', '/perfil', '/perfil/carteiras', '/perfil/favoritos'
 function RootLayout() {
   const { pathname } = useLocation()
   const withTabBar = TAB_BAR_ROUTES.includes(pathname)
+  // No mobile login e cadastro são telas cheias, sem rodapé (frames Mobile / Login e Cadastro).
+  const authPage = pathname === '/entrar' || pathname === '/cadastro'
+  useAuthErrorHandler()
   return (
     <RealtimeProvider>
       <a
@@ -33,7 +38,9 @@ function RootLayout() {
         <main id="conteudo" tabIndex={-1} className="flex-1 outline-none md:mb-16">
           <Outlet />
         </main>
-        <div className={withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6'}>
+        <div
+          className={cn(withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6', authPage && 'hidden md:block')}
+        >
           <Footer />
         </div>
       </div>

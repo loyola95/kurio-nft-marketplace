@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { sessionQueryOptions } from '@/features/auth/session'
 import { authSearchSchema } from '@/features/auth/authSearch'
-import { PageShell } from '@/features/layout/PageShell'
+import { AuthScreen } from '@/features/auth/components/AuthScreen'
 import { safeRedirect } from '@/lib/redirect'
 
 export const Route = createFileRoute('/cadastro')({
@@ -10,5 +10,5 @@ export const Route = createFileRoute('/cadastro')({
     const user = await context.queryClient.ensureQueryData(sessionQueryOptions)
     if (user) throw redirect({ href: safeRedirect(search.redirect) })
   },
-  component: () => <PageShell title="Criar conta" />,
+  component: () => <AuthScreen mode="register" />,
 })

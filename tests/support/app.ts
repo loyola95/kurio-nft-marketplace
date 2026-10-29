@@ -84,7 +84,7 @@ export async function searchCatalog(page: Page, testInfo: TestInfo, term: string
 }
 
 export async function login(page: Page, who: 'ana' | 'bruno' = 'ana') {
-  await page.getByLabel('E-mail').fill(`${who}@kurio.dev`)
+  await page.getByLabel('E-mail', { exact: true }).fill(`${who}@kurio.dev`)
   await page.getByLabel('Senha', { exact: true }).fill('Kurio@123')
   await page.getByRole('button', { name: 'Entrar', exact: true }).click()
 }

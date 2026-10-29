@@ -12,6 +12,7 @@ export type IconName =
   | 'danger'
   | 'delete'
   | 'download'
+  | 'eye'
   | 'eye-off'
   | 'facebook'
   | 'filter'
