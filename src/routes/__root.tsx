@@ -6,6 +6,8 @@ import { Footer } from '@/features/layout/Footer'
 import { Header } from '@/features/layout/Header'
 import { MobileTabBar } from '@/features/layout/MobileTabBar'
 import { NotFound } from '@/features/layout/NotFound'
+import { ConnectionStatus } from '@/features/layout/ConnectionStatus'
+import { RealtimeProvider } from '@/realtime/RealtimeProvider'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
@@ -18,7 +20,7 @@ function RootLayout() {
   const { pathname } = useLocation()
   const withTabBar = TAB_BAR_ROUTES.includes(pathname)
   return (
-    <>
+    <RealtimeProvider>
       <a
         href="#conteudo"
         className="sr-only z-50 rounded-md bg-primary px-4 py-2 font-bold text-primary-foreground focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
@@ -37,6 +39,7 @@ function RootLayout() {
       {withTabBar && <MobileTabBar />}
       <Toaster position="top-center" />
       <Announcer />
-    </>
+      <ConnectionStatus />
+    </RealtimeProvider>
   )
 }
