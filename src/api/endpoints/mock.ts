@@ -13,7 +13,9 @@ export const mockControl = {
     available?: number
   }) => http.post('/__mock/events/nft-updated', body),
   duplicateLastEvent: () => http.post('/__mock/events/duplicate-last'),
-  emitStaleEvent: () => http.post('/__mock/events/stale'),
+  emitStaleEvent: (type?: 'nft.updated' | 'order.updated') =>
+    http.post('/__mock/events/stale', type ? { type } : {}),
+  holdOrders: (hold: boolean) => http.post('/__mock/orders/hold', { hold }),
   dropRealtime: () => http.post('/__mock/realtime/drop'),
   expireSession: () => http.post('/__mock/session/expire'),
   disconnectWallet: () => http.post('/__mock/wallet/disconnect'),

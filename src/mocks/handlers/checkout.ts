@@ -52,7 +52,11 @@ function guard<T>(fn: () => T): T {
 
 const timers = new Map<string, number>()
 
+const HOLD = 'orders-hold'
+
 function settleDueOrders() {
+  // Controle "segurar pedidos": testes e painel resolvem quando quiserem.
+  if (db.get().scenarioEffects.includes(HOLD)) return
   const { orders, nftIds } = db.update((s) => resolveDueOrders(s, Date.now(), finder(s)))
   for (const order of orders) {
     window.clearTimeout(timers.get(order.id))
@@ -235,6 +239,17 @@ export const checkoutHandlers = [
 
 // Controle: a carteira "cai" do lado da extensão (o próximo envio recebe WALLET_DISCONNECTED).
 export const checkoutControlHandlers = [
+  // { hold: true } segura a resolução dos pedidos; { hold: false } solta e resolve os vencidos.
+  http.post(`${API_BASE}/__mock/orders/hold`, async ({ request }) => {
+    const { hold } = (await request.json().catch(() => ({}))) as { hold?: boolean }
+    db.update((s) => {
+      s.scenarioEffects = s.scenarioEffects.filter((e) => e !== HOLD)
+      if (hold) s.scenarioEffects.push(HOLD)
+    })
+    if (!hold) settleDueOrders()
+    return HttpResponse.json({ ok: true, hold: Boolean(hold) })
+  }),
+
   http.post(`${API_BASE}/__mock/wallet/disconnect`, () => {
     db.update((s) => {
       s.connections = {}

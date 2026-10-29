@@ -346,6 +346,7 @@ function CheckoutForm({
       connection={connection}
       now={now}
       changed={checkout.reviewChanged}
+      unavailable={checkout.reviewUnavailable}
       problem={checkout.problem}
       submitting={checkout.submitting}
       onConfirm={() => void checkout.submit(CollectorForm.parse(form.getValues()))}
@@ -448,7 +449,7 @@ function CheckoutForm({
           {fields}
         </form>
         <div className="flex flex-col gap-3">
-          <CheckoutItems quote={quote} cart={cart} />
+          <CheckoutItems quote={quote} cart={cart} failed={checkout.quote.isError} />
           {connectors}
           {quoteProblem}
           <div className="mt-3">{confirmButton}</div>

@@ -261,3 +261,26 @@ export function toCartView(
   }
   return { view, cart: stored, changed }
 }
+
+/**
+ * Unidades que a própria pessoa reservou num pedido pendente voltam a contar
+ * como disponíveis no carrinho dela: quem comprou as últimas unidades não vê
+ * o próprio item como esgotado enquanto o pedido é confirmado.
+ */
+export function withOwnReservations(
+  find: FindEdition,
+  reserved: { editionId: string; quantity: number }[],
+): FindEdition {
+  if (reserved.length === 0) return find
+  return (nftId, editionId) => {
+    const found = find(nftId, editionId)
+    const mine = reserved
+      .filter((r) => r.editionId === editionId)
+      .reduce((n, r) => n + r.quantity, 0)
+    if (!found || mine === 0 || found.edition.status === 'unavailable') return found
+    return {
+      nft: found.nft,
+      edition: { ...found.edition, available: found.edition.available + mine, status: 'available' },
+    }
+  }
+}

@@ -1,7 +1,15 @@
 import { describe, expect, it } from 'vitest'
 import type { Edition } from '@/contracts/nft'
 import type { MockCart, MockCoupon, MockNft } from '../db/schema'
-import { CartError, addItem, computeSummary, mergeCarts, resolveCoupon, toCartView } from './cart'
+import {
+  CartError,
+  addItem,
+  computeSummary,
+  mergeCarts,
+  resolveCoupon,
+  toCartView,
+  withOwnReservations,
+} from './cart'
 
 const coupons: MockCoupon[] = [
   {
@@ -283,5 +291,34 @@ describe('visão do carrinho', () => {
     const { view } = toCartView(cart, () => ({ nft: nft([e]), edition: e }), null)
     expect(view.items[0].status).toBe('sold_out')
     expect(view.summary.totalEth).toBe('0')
+  })
+})
+
+describe('reserva própria', () => {
+  it('unidades reservadas pela pessoa contam como disponíveis só para ela', () => {
+    const ed = edition({ available: 0, status: 'sold_out' })
+    const find = () => ({ nft: nft([ed]), edition: ed })
+    const cart = emptyCart({
+      items: [
+        {
+          id: 'i-1',
+          nftId: 'emerald-ape-042',
+          editionId: 'e-50',
+          quantity: 2,
+          seenUnitPriceEth: '1.19',
+          addedAt: '2026-10-29T12:00:00.000Z',
+        },
+      ],
+    })
+    const other = toCartView(cart, find, null).view
+    expect(other.items[0].status).toBe('sold_out')
+    const mine = toCartView(
+      cart,
+      withOwnReservations(find, [{ editionId: 'e-50', quantity: 2 }]),
+      null,
+    ).view
+    expect(mine.items[0].status).toBe('ok')
+    expect(mine.items[0].quantity).toBe(2)
+    expect(mine.summary.subtotalEth).toBe('2.38')
   })
 })

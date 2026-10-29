@@ -191,6 +191,9 @@ export function useCheckout(p: Params) {
 
   const latest = quote.data
   const reviewChanged = Boolean(p.review && latest && !sameTerms(p.review, latest))
+  // Com a revisão aberta, a nova cotação falhar por estoque também bloqueia o envio.
+  const reviewUnavailable =
+    p.review && isApiError(quote.error, 'AVAILABILITY_CONFLICT') ? quote.error.message : null
 
   return {
     quote,
@@ -205,6 +208,7 @@ export function useCheckout(p: Params) {
     problem,
     clearProblem: () => setProblem(null),
     reviewChanged,
+    reviewUnavailable,
     refreshReview,
   }
 }

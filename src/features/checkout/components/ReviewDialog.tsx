@@ -1,3 +1,4 @@
+import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from '@/components/ui/dialog'
 import { Icon } from '@/components/icon'
@@ -17,6 +18,8 @@ interface Props {
   now: number
   /** A cotação atual da API cobra diferente da revisada (evento de preço/estoque, cupom). */
   changed: boolean
+  /** Algum item deixou de ter estoque: a compra não pode seguir com estes itens. */
+  unavailable: string | null
   problem: SendProblem
   submitting: boolean
   onConfirm: () => void
@@ -41,9 +44,9 @@ function Alert({ children, action }: { children: ReactNode; action?: ReactNode }
  * vencida ou desatualizada bloqueia o envio até a pessoa gerar outra e confirmar de novo.
  */
 export function ReviewDialog(props: Props) {
-  const { quote, wallet, connection, now, changed, problem, submitting } = props
+  const { quote, wallet, connection, now, changed, unavailable, problem, submitting } = props
   const expired = isExpired(quote, now)
-  const blocked = expired || changed
+  const blocked = expired || changed || Boolean(unavailable)
   const refresh = (
     <button
       type="button"
@@ -54,7 +57,17 @@ export function ReviewDialog(props: Props) {
     </button>
   )
 
-  const alert = expired ? (
+  const alert = unavailable ? (
+    <Alert
+      action={
+        <Link to="/carrinho" className="self-start font-bold text-highlight hover:underline">
+          Revisar carrinho
+        </Link>
+      }
+    >
+      {unavailable}
+    </Alert>
+  ) : expired ? (
     <Alert action={refresh}>Esta cotação expirou. Gere uma nova para conferir os valores.</Alert>
   ) : changed ? (
     <Alert action={refresh}>

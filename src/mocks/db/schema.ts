@@ -113,6 +113,8 @@ export interface MockState {
   /** Contador global usado para ids e versões de eventos. */
   sequence: number
   lastEvent: unknown | null
+  /** Último evento de cada tipo (controle "evento antigo" escolhe o tipo). */
+  lastEvents: Record<string, unknown>
   scenario: ScenarioName
   /** Efeitos únicos do cenário já aplicados (ex.: preço que muda uma vez no checkout). */
   scenarioEffects: string[]

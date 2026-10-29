@@ -3,7 +3,7 @@ import { buildNfts } from '../fixtures/nfts'
 import type { MockState } from './schema'
 
 /** Versão do formato do banco. Mudou a forma dos dados, aumenta aqui. */
-export const SEED_VERSION = 4
+export const SEED_VERSION = 5
 
 export function buildSeed(): MockState {
   return {
@@ -20,6 +20,7 @@ export function buildSeed(): MockState {
     connections: {},
     sequence: 1000,
     lastEvent: null,
+    lastEvents: {},
     scenario: 'padrao',
     scenarioEffects: [],
   }

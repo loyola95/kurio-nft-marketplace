@@ -50,8 +50,11 @@ export const eventControlHandlers = [
   }),
 
   // Envia um evento novo com versão antiga e dados velhos (o cliente não deve regredir).
-  http.post(`${API_BASE}/__mock/events/stale`, () => {
-    const last = db.get().lastEvent as RealtimeEvent | null
+  // Corpo opcional { type }: escolhe o último evento daquele tipo (ex.: order.updated).
+  http.post(`${API_BASE}/__mock/events/stale`, async ({ request }) => {
+    const body = (await request.json().catch(() => ({}))) as { type?: string }
+    const state = db.get()
+    const last = (body.type ? state.lastEvents[body.type] : state.lastEvent) as RealtimeEvent | null
     if (!last) return HttpResponse.json({ event: null })
     const stale = { ...last, id: crypto.randomUUID(), version: last.version - 1 } as RealtimeEvent
     if (stale.type === 'nft.updated') {

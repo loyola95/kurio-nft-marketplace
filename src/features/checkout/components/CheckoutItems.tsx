@@ -18,7 +18,16 @@ function Row({ label, value, small }: { label: string; value: string; small?: bo
 }
 
 /** Coluna "Seus NFTs" do frame desktop: linhas e totais da cotação da rede escolhida. */
-export function CheckoutItems({ quote, cart }: { quote: Quote | undefined; cart: Cart }) {
+export function CheckoutItems({
+  quote,
+  cart,
+  failed,
+}: {
+  quote: Quote | undefined
+  cart: Cart
+  /** A cotação falhou (a mensagem aparece abaixo dos conectores): sem esqueleto infinito. */
+  failed: boolean
+}) {
   const [couponOpen, setCouponOpen] = useState(false)
   return (
     <section aria-labelledby="seus-nfts" className="flex flex-col gap-3">
@@ -31,7 +40,7 @@ export function CheckoutItems({ quote, cart }: { quote: Quote | undefined; cart:
       </div>
       <hr className="border-primary/30" />
 
-      {!quote ? (
+      {failed && !quote ? null : !quote ? (
         <div aria-hidden className="flex flex-col gap-3">
           {Array.from({ length: 2 }, (_, i) => (
             <Skeleton key={i} className="h-[70px]" />

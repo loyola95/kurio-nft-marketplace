@@ -55,6 +55,7 @@ export const realtimeHandlers = [
 export function publish(event: RealtimeEvent) {
   db.update((s) => {
     s.lastEvent = event
+    s.lastEvents[event.type] = event
   })
   deliver(event)
 }

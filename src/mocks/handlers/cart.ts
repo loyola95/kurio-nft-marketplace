@@ -14,6 +14,7 @@ import {
   resolveCoupon,
   setQuantity,
   toCartView,
+  withOwnReservations,
   type FindEdition,
 } from '../domain/cart'
 import { findNft } from '../domain/catalog'
@@ -77,7 +78,12 @@ function respond(key: string, ownerType: MockCart['ownerType']) {
     version: 0,
   }
   const coupon = state.coupons.find((c) => c.code === stored.couponCode) ?? null
-  const { view, cart, changed } = toCartView(stored, finder(state), coupon)
+  // Reservas da própria pessoa (pedidos pendentes) não deixam o item dela "esgotado".
+  const reserved = Object.values(state.orders)
+    .filter((o) => o.status === 'pending' && `user:${o.userId}` === key)
+    .flatMap((o) => o.purchased)
+  const find = withOwnReservations(finder(state), reserved)
+  const { view, cart, changed } = toCartView(stored, find, coupon)
   if (changed && state.carts[key]) {
     db.update((s) => {
       s.carts[key] = cart
