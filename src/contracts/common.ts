@@ -15,6 +15,13 @@ export const NETWORK_LABEL: Record<Network, string> = {
   solana: 'Solana',
 }
 
+/** Taxa de rede estimada por pedido (um pedido é sempre de uma rede só). */
+export const NETWORK_FEE_ETH: Record<Network, string> = {
+  ethereum: '0.016',
+  polygon: '0.002',
+  solana: '0.0004',
+}
+
 export const Image = z.object({
   src: z.string(),
   alt: z.string(),

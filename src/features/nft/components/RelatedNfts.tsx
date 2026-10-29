@@ -10,7 +10,14 @@ const PAGE_SIZE = 5
  * "Mais desta coleção": rolagem horizontal no mobile; no desktop, carrossel de 5
  * com os indicadores do Figma (Carousel Dots: 12px, o ativo preenchido).
  */
-export function RelatedNfts({ nftId }: { nftId: string }) {
+export function RelatedNfts({
+  nftId,
+  title = 'Mais desta coleção',
+}: {
+  nftId: string
+  /** O carrinho usa a mesma vitrine como "Colecionadores também viram". */
+  title?: string
+}) {
   const { data, isPending, isError } = useQuery(relatedOptions(nftId))
   const [page, setPage] = useState(0)
   if (isError || (data && data.length === 0)) return null
@@ -23,7 +30,7 @@ export function RelatedNfts({ nftId }: { nftId: string }) {
     <section aria-labelledby="relacionados-titulo" className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
         <h2 id="relacionados-titulo" className="text-[17px] leading-4 font-bold text-highlight">
-          Mais desta coleção
+          {title}
         </h2>
         <hr className="border-primary/30" />
       </div>
@@ -50,7 +57,7 @@ export function RelatedNfts({ nftId }: { nftId: string }) {
         {pages > 1 && (
           <div
             role="group"
-            aria-label="Páginas de Mais desta coleção"
+            aria-label={`Páginas de ${title}`}
             className="hidden justify-center gap-2 md:flex"
           >
             {Array.from({ length: pages }, (_, i) => (

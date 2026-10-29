@@ -25,6 +25,8 @@ function RootLayout() {
   const authPage = pathname === '/entrar' || pathname === '/cadastro'
   // Os frames de perfil e carteiras não têm rodapé.
   const profilePage = pathname.startsWith('/perfil')
+  // O frame mobile do carrinho termina no resumo, sem rodapé.
+  const cartPage = pathname === '/carrinho'
   useAuthErrorHandler()
   return (
     <RealtimeProvider>
@@ -47,7 +49,7 @@ function RootLayout() {
         <div
           className={cn(
             withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6',
-            authPage && 'hidden md:block',
+            (authPage || cartPage) && 'hidden md:block',
             profilePage && 'hidden',
           )}
         >

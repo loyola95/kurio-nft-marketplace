@@ -22,7 +22,8 @@ export function QuantityStepper({
   onChange: (value: number) => void
   label?: string
   limitMessage?: string
-  size?: 'md' | 'sm'
+  /** md: detalhe desktop; sm: pílulas 20x30 (detalhe mobile e carrinho desktop); round: círculos 24px do carrinho mobile. */
+  size?: 'md' | 'sm' | 'round'
   disabled?: boolean
 }) {
   // Rascunho só enquanto o usuário digita; fora disso o campo mostra o valor real.
@@ -35,13 +36,17 @@ export function QuantityStepper({
     setDraft(null)
     if (next !== value) onChange(next)
   }
+  const action = label.charAt(0).toLowerCase() + label.slice(1)
   const atMin = value <= min
   const atMax = value >= max
   const button = cn(
-    'grid shrink-0 place-items-center rounded-full border border-background bg-primary text-black transition-colors hover:bg-highlight disabled:cursor-not-allowed disabled:hover:bg-primary',
-    size === 'md'
-      ? 'h-[50px] w-[33px]'
-      : 'relative h-[30px] w-5 shadow-[0_4px_12px_-2px_rgb(20_13_10/0.15)] after:absolute after:-inset-x-2 after:-inset-y-1',
+    'grid shrink-0 place-items-center rounded-full border transition-colors disabled:cursor-not-allowed',
+    size === 'round'
+      ? 'relative size-6 border-border bg-surface-2 text-foreground after:absolute after:-inset-2 hover:border-primary disabled:text-border-strong disabled:hover:border-border'
+      : 'border-background bg-primary text-black hover:bg-highlight disabled:hover:bg-primary',
+    size === 'md' && 'h-[50px] w-[33px]',
+    size === 'sm' &&
+      'relative h-[30px] w-5 shadow-[0_4px_12px_-2px_rgb(20_13_10/0.15)] after:absolute after:-inset-x-2 after:-inset-y-1',
     // No limite o botão só desabilita (o Figma mantém a cor); edição indisponível apaga tudo.
     disabled && 'opacity-40',
   )
@@ -54,7 +59,7 @@ export function QuantityStepper({
           className={button}
           onClick={() => onChange(Math.max(min, value - 1))}
           disabled={disabled || atMin}
-          aria-label={`Diminuir ${label.toLowerCase()}`}
+          aria-label={`Diminuir ${action}`}
         >
           <span
             aria-hidden
@@ -77,17 +82,19 @@ export function QuantityStepper({
           }}
           className={cn(
             'w-8 bg-transparent text-center outline-none focus-visible:outline-2 focus-visible:outline-highlight',
-            size === 'md' ? 'text-xl leading-7' : 'text-lg leading-[25px] font-medium',
+            size === 'md' && 'text-xl leading-7',
+            size === 'sm' && 'text-lg leading-[25px] font-medium',
+            size === 'round' && 'text-base leading-[22px]',
           )}
           // No mobile o campo acompanha a largura dos dígitos (o "1" do Figma tem 11px).
-          style={size === 'sm' ? { width: `${(draft ?? String(value)).length || 1}ch` } : undefined}
+          style={size !== 'md' ? { width: `${(draft ?? String(value)).length || 1}ch` } : undefined}
         />
         <button
           type="button"
           className={button}
           onClick={() => onChange(Math.min(max, value + 1))}
           disabled={disabled || atMax}
-          aria-label={`Aumentar ${label.toLowerCase()}`}
+          aria-label={`Aumentar ${action}`}
         >
           <span
             aria-hidden

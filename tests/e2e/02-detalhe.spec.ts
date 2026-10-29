@@ -21,7 +21,10 @@ test.describe('detalhe do NFT', () => {
 
   test('navega do catálogo para o detalhe', async ({ page }) => {
     await open(page)
-    await catalogCards(page).first().getByRole('link').click()
+    await catalogCards(page)
+      .first()
+      .getByRole('link', { name: 'Emerald Ape #042', exact: true })
+      .click()
     await expect(page).toHaveURL(/\/nft\/emerald-ape-042/)
     await expect(page.getByRole('heading', { level: 1, name: 'Emerald Ape #042' })).toBeVisible()
   })

@@ -4,6 +4,7 @@ import {
   applyCoupon,
   getCart,
   removeCartItem,
+  dismissCartNotices,
   removeCoupon,
   updateCartItem,
 } from '@/api/endpoints/cart'
@@ -46,6 +47,8 @@ function useCartMutation<TVars>(fn: (vars: TVars) => Promise<Cart>) {
   return useMutation({
     mutationFn: fn,
     onSuccess: (cart) => queryClient.setQueryData(cartKeys.current(key), cart),
+    // Conflito de estoque: o carrinho no servidor mudou, então recarrega a versão real.
+    onError: () => queryClient.invalidateQueries({ queryKey: cartKeys.current(key) }),
   })
 }
 
@@ -57,6 +60,7 @@ export const useUpdateCartItem = () =>
 export const useRemoveCartItem = () => useCartMutation((itemId: string) => removeCartItem(itemId))
 export const useApplyCoupon = () => useCartMutation((code: string) => applyCoupon(code))
 export const useRemoveCoupon = () => useCartMutation(() => removeCoupon())
+export const useDismissCartNotices = () => useCartMutation(() => dismissCartNotices())
 
 /** Quantidade já no carrinho para uma edição (limite de quantidade no detalhe). */
 export function useQuantityInCart(editionId: string | undefined): number {

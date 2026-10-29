@@ -1,10 +1,53 @@
 import { Link } from '@tanstack/react-router'
+import { toast } from 'sonner'
+import { isApiError } from '@/api/errors'
+import { Icon } from '@/components/icon'
 import type { NftSummary } from '@/contracts/nft'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useAddToCart } from '@/features/cart/queries'
 import { FavoriteButton } from '@/features/favorites/components/FavoriteButton'
 import { formatEth } from '@/lib/money'
 import { cn } from '@/lib/utils'
 import { NftImage } from './NftImage'
+
+/**
+ * Ações do card no hover (frame Desktop / Login): carrinho, favoritar e ver detalhes,
+ * 35px com raio 4, centralizadas sobre a base da arte. Aparecem também com o foco do teclado.
+ */
+function CardActions({ nft }: { nft: NftSummary }) {
+  const add = useAddToCart()
+  const square =
+    'grid size-[35px] place-items-center rounded-[4px] border border-border bg-surface-2 text-foreground transition-colors hover:border-primary disabled:cursor-not-allowed disabled:opacity-50'
+  return (
+    <div className="absolute bottom-[7px] left-1/2 z-10 hidden -translate-x-1/2 gap-2.5 opacity-0 transition-opacity group-focus-within:opacity-100 group-hover:opacity-100 motion-reduce:transition-none lg:flex">
+      <button
+        type="button"
+        disabled={nft.available === 0 || add.isPending}
+        onClick={() =>
+          add.mutate(
+            { nftId: nft.id, editionId: nft.defaultEditionId, quantity: 1 },
+            {
+              onSuccess: () => toast.success(`${nft.name} adicionado ao carrinho.`),
+              onError: (error) =>
+                toast.error(
+                  isApiError(error) ? error.message : 'Não foi possível adicionar ao carrinho.',
+                ),
+            },
+          )
+        }
+        className={square}
+      >
+        <Icon name="cart" size={20} />
+        <span className="sr-only">Adicionar {nft.name} ao carrinho</span>
+      </button>
+      <FavoriteButton nftId={nft.id} nftName={nft.name} variant="icon" size="square" />
+      <Link to="/nft/$nftId" params={{ nftId: nft.id }} className={square}>
+        <Icon name="search-header" size={22} />
+        <span className="sr-only">Ver detalhes de {nft.name}</span>
+      </Link>
+    </div>
+  )
+}
 
 /**
  * Card da grade. Desktop: moldura #241612 258x300, arte 250x250 com raio 15.
@@ -50,6 +93,7 @@ export function NftCard({
             Esgotado
           </span>
         )}
+        {!compact && !showFavorite && <CardActions nft={nft} />}
         <div className={cn('absolute top-3 right-2.5 z-10', !showFavorite && 'md:hidden')}>
           <FavoriteButton nftId={nft.id} nftName={nft.name} variant="icon" size="sm" />
         </div>
@@ -61,7 +105,7 @@ export function NftCard({
           <Link
             to="/nft/$nftId"
             params={{ nftId: nft.id }}
-            className="after:absolute after:inset-0 hover:text-highlight"
+            className="after:absolute after:inset-0"
           >
             {nft.name}
           </Link>

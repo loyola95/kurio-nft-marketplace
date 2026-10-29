@@ -35,3 +35,8 @@ export async function mergeCart(guestCartId: string) {
   const { data } = await http.post('/cart/merge', { guestCartId })
   return Cart.parse(data)
 }
+
+export async function dismissCartNotices() {
+  const { data } = await http.post('/cart/notices/dismiss')
+  return Cart.parse(data)
+}

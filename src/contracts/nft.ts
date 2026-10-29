@@ -55,6 +55,8 @@ export const NftSummary = z.object({
   compareAtPriceEth: EthAmount.nullable(),
   badge: z.literal('RARO').nullable(),
   available: z.number().int().min(0),
+  /** Edição usada pelo "adicionar ao carrinho" direto do card. */
+  defaultEditionId: z.string(),
   listedAt: IsoDate,
   version: z.number().int(),
 })

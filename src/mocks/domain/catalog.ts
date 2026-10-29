@@ -42,6 +42,7 @@ export function toSummary(nft: MockNft): NftSummary {
     compareAtPriceEth: nft.compareAtPriceEth,
     badge: nft.badge,
     available: totalAvailable(nft),
+    defaultEditionId: defaultEdition(nft).id,
     listedAt: nft.listedAt,
     version: nft.version,
   }

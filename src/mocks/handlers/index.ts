@@ -1,5 +1,6 @@
 import { realtimeHandlers } from '../realtime/server'
 import { authControlHandlers, authHandlers } from './auth'
+import { cartHandlers } from './cart'
 import { controlHandlers } from './control'
 import { eventControlHandlers } from './control-events'
 import { favoriteHandlers } from './favorites'
@@ -12,5 +13,6 @@ export const handlers = [
   ...authHandlers,
   ...nftHandlers,
   ...favoriteHandlers,
+  ...cartHandlers,
   ...realtimeHandlers,
 ]
