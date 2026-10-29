@@ -18,7 +18,8 @@ export function CatalogTabs() {
     <div
       role="group"
       aria-label="Seção do catálogo"
-      className="flex gap-4 overflow-x-auto md:gap-5"
+      // pb/-mb guardam o sublinhado dentro da área rolável (senão surge barra vertical).
+      className="-mb-1.5 flex gap-4 overflow-x-auto pb-1.5 [scrollbar-width:none] md:gap-5"
     >
       {TABS.map((tab) => {
         const selected = tab.id === active
