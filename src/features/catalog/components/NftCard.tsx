@@ -15,11 +15,14 @@ export function NftCard({
   nft,
   priority = false,
   compact = false,
+  showFavorite = false,
 }: {
   nft: NftSummary
   priority?: boolean
   /** Textos 15/20 e 16/16 em todas as larguras ("Mais desta coleção"). */
   compact?: boolean
+  /** Coração também no desktop (lista de interesse); na grade ele é só do mobile. */
+  showFavorite?: boolean
 }) {
   const soldOut = nft.available === 0
   return (
@@ -47,7 +50,7 @@ export function NftCard({
             Esgotado
           </span>
         )}
-        <div className="absolute top-3 right-2.5 z-10 md:hidden">
+        <div className={cn('absolute top-3 right-2.5 z-10', !showFavorite && 'md:hidden')}>
           <FavoriteButton nftId={nft.id} nftName={nft.name} variant="icon" size="sm" />
         </div>
       </div>

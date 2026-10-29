@@ -23,6 +23,8 @@ function RootLayout() {
   const withTabBar = TAB_BAR_ROUTES.includes(pathname)
   // No mobile login e cadastro são telas cheias, sem rodapé (frames Mobile / Login e Cadastro).
   const authPage = pathname === '/entrar' || pathname === '/cadastro'
+  // Os frames de perfil e carteiras não têm rodapé.
+  const profilePage = pathname.startsWith('/perfil')
   useAuthErrorHandler()
   return (
     <RealtimeProvider>
@@ -35,17 +37,26 @@ function RootLayout() {
       <div className="page-container flex min-h-dvh flex-col gap-8 pt-6 md:pt-6">
         <Header withDivider={pathname === '/'} />
         {/* No Figma o rodapé fica a 96px do conteúdo (gap-8 + mb-16). */}
-        <main id="conteudo" tabIndex={-1} className="flex-1 outline-none md:mb-16">
+        <main
+          id="conteudo"
+          tabIndex={-1}
+          className={cn('flex-1 outline-none md:mb-16', profilePage && 'pb-[110px] md:pb-0')}
+        >
           <Outlet />
         </main>
         <div
-          className={cn(withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6', authPage && 'hidden md:block')}
+          className={cn(
+            withTabBar ? 'pb-[110px] md:pb-6' : 'pb-6',
+            authPage && 'hidden md:block',
+            profilePage && 'hidden',
+          )}
         >
           <Footer />
         </div>
       </div>
       {withTabBar && <MobileTabBar />}
-      <Toaster position="top-center" />
+      {/* No mobile os avisos descem para não cobrir os botões do topo (voltar, favoritar, busca). */}
+      <Toaster position="top-center" mobileOffset={{ top: 72 }} />
       <Announcer />
       <ConnectionStatus />
     </RealtimeProvider>

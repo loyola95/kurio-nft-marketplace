@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PageShell } from '@/features/layout/PageShell'
+import { FavoritesPage } from '@/features/favorites/components/FavoritesPage'
 
 export const Route = createFileRoute('/_autenticado/perfil/favoritos')({
-  component: () => <PageShell title="Lista de interesse" />,
+  component: FavoritesPage,
 })

@@ -105,17 +105,19 @@ test.describe('conta e sessão', () => {
     await expect(page).toHaveURL(/\/entrar/)
   })
 
-  test('sair encerra a sessão e outro usuário entra limpo', async ({ page }, testInfo) => {
-    test.skip(isMobile(testInfo), 'No mobile o "Sair" fica no perfil (Tarefa 14).')
-    await open(page, '/entrar')
+  test('sair encerra a sessão e outro usuário entra limpo', async ({ page }) => {
+    await open(page, '/entrar?redirect=/perfil')
     await login(page, 'ana')
-    await page.getByRole('button', { name: /Menu da conta de/ }).click()
-    await page.getByRole('menuitem', { name: 'Sair' }).click()
-    await expect(page.getByRole('link', { name: 'Entrar' })).toBeVisible()
+    await expect(page).toHaveURL(/\/perfil(\?|$)/)
+    await page.getByRole('button', { name: 'Sair' }).filter({ visible: true }).click()
+    await expect(page).toHaveURL(/\/(\?.*)?$/)
     expect((await mockState(page)).sessions).toBe(0)
-    await page.goto('/entrar')
+    // Sem sessão, a rota privada volta a pedir login.
+    await page.goto('/perfil')
+    await expect(page).toHaveURL(/\/entrar/)
     await login(page, 'bruno')
-    await expect(page.getByRole('button', { name: /Menu da conta de Bruno/ })).toBeVisible()
+    await expect(page).toHaveURL(/\/perfil(\?|$)/)
+    expect((await mockState(page)).sessions).toBe(1)
   })
 
   test('fechar o modal volta para a Início', async ({ page }, testInfo) => {

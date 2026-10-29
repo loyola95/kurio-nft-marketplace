@@ -124,7 +124,12 @@ export function Footer() {
               <ul className="text-sm leading-[30px]">
                 {col.links.map((l) => (
                   <li key={l.label}>
-                    <Link to={l.to} search={l.search} className="hover:text-highlight">
+                    <Link
+                      to={l.to}
+                      search={l.search}
+                      activeOptions={{ exact: true }}
+                      className="hover:text-highlight"
+                    >
                       {l.label}
                     </Link>
                   </li>

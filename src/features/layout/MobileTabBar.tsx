@@ -38,6 +38,7 @@ export function MobileTabBar() {
     return (
       <Link
         to={tab.to}
+        activeOptions={{ exact: true }}
         aria-current={active ? 'page' : undefined}
         className={cn(
           'absolute top-7 grid size-11 place-items-center',

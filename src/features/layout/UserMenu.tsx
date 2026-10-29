@@ -27,7 +27,9 @@ export function UserMenu({ user }: { user: User }) {
         <DropdownMenuLabel className="truncate text-xs text-text-2">{user.email}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link to="/perfil">Meu perfil</Link>
+          <Link to="/perfil" activeOptions={{ exact: true }}>
+            Meu perfil
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link to="/perfil/carteiras">Carteiras</Link>
