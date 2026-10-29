@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { Icon, type IconName } from '@/components/icon'
+import type { CatalogSearch } from '@/features/catalog/searchSchema'
 import { Newsletter } from './Newsletter'
 
 const SERVICES = [
@@ -21,7 +22,8 @@ const SERVICES = [
 ]
 
 type FooterLink = { label: string } & (
-  | { to: '/perfil' | '/perfil/favoritos' | '/'; search?: Record<string, string> }
+  | { to: '/perfil' | '/perfil/favoritos'; search?: undefined }
+  | { to: '/'; search: CatalogSearch }
   | { to: '/indisponivel'; search: { de: string } }
 )
 
@@ -49,11 +51,11 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
   {
     title: 'Coleções',
     links: [
-      { label: 'Arte digital', to: '/', search: { categorias: 'arte-digital' } },
-      { label: 'Fotografia', to: '/', search: { categorias: 'fotografia' } },
-      { label: 'Música', to: '/', search: { categorias: 'musica' } },
-      { label: 'Arte 3D', to: '/', search: { categorias: 'arte-3d' } },
-      { label: 'Utilidade', to: '/', search: { categorias: 'utilidade' } },
+      { label: 'Arte digital', to: '/', search: { categorias: ['arte-digital' as const] } },
+      { label: 'Fotografia', to: '/', search: { categorias: ['fotografia' as const] } },
+      { label: 'Música', to: '/', search: { categorias: ['musica' as const] } },
+      { label: 'Arte 3D', to: '/', search: { categorias: ['arte-3d' as const] } },
+      { label: 'Utilidade', to: '/', search: { categorias: ['utilidade' as const] } },
     ],
   },
 ]

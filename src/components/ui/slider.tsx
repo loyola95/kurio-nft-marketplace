@@ -1,16 +1,23 @@
 import * as React from 'react'
-import { cn } from '@/lib/utils'
 import { Slider as SliderPrimitive } from 'radix-ui'
+import { cn } from '@/lib/utils'
 
+// Slider do filtro de preço do Figma: trilho laranja de 4 px e alças de 15 px
+// com borda escura. Cada alça recebe rótulo e valor em texto para leitores de tela.
 function Slider({
   className,
   defaultValue,
   value,
   min = 0,
   max = 100,
+  thumbLabels,
+  getValueText,
   ...props
-}: React.ComponentProps<typeof SliderPrimitive.Root>) {
-  const _values = React.useMemo(
+}: React.ComponentProps<typeof SliderPrimitive.Root> & {
+  thumbLabels?: string[]
+  getValueText?: (value: number) => string
+}) {
+  const values = React.useMemo(
     () => (Array.isArray(value) ? value : Array.isArray(defaultValue) ? defaultValue : [min, max]),
     [value, defaultValue, min, max],
   )
@@ -22,26 +29,18 @@ function Slider({
       value={value}
       min={min}
       max={max}
-      className={cn(
-        'relative flex w-full touch-none items-center select-none data-disabled:opacity-50 data-vertical:h-full data-vertical:min-h-40 data-vertical:w-auto data-vertical:flex-col',
-        className,
-      )}
+      className={cn('relative flex w-full touch-none items-center select-none', className)}
       {...props}
     >
-      <SliderPrimitive.Track
-        data-slot="slider-track"
-        className="relative grow overflow-hidden rounded-none bg-muted data-horizontal:h-1 data-horizontal:w-full data-vertical:h-full data-vertical:w-1"
-      >
-        <SliderPrimitive.Range
-          data-slot="slider-range"
-          className="absolute bg-primary select-none data-horizontal:h-full data-vertical:w-full"
-        />
+      <SliderPrimitive.Track className="relative h-1 grow overflow-hidden rounded-full bg-primary/40">
+        <SliderPrimitive.Range className="absolute h-full bg-primary" />
       </SliderPrimitive.Track>
-      {Array.from({ length: _values.length }, (_, index) => (
+      {values.map((v, index) => (
         <SliderPrimitive.Thumb
-          data-slot="slider-thumb"
           key={index}
-          className="relative block size-3 shrink-0 rounded-none border border-ring bg-white ring-ring/50 transition-[color,box-shadow] select-none after:absolute after:-inset-2 hover:ring-1 focus-visible:ring-1 focus-visible:outline-hidden active:ring-1 disabled:pointer-events-none disabled:opacity-50"
+          aria-label={thumbLabels?.[index]}
+          aria-valuetext={getValueText?.(v)}
+          className="block size-[15px] rounded-full border-[3px] border-background bg-primary outline-none after:absolute after:-inset-3 focus-visible:ring-2 focus-visible:ring-highlight"
         />
       ))}
     </SliderPrimitive.Root>
