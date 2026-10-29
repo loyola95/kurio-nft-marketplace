@@ -225,6 +225,8 @@ function Detail({ nft }: { nft: NftDetail }) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="detalhes" className="flex flex-col gap-3 text-sm leading-6">
+          {/* Mantém a hierarquia h1 → h2 → h3 (o nome da aba já aparece visível acima). */}
+          <h2 className="sr-only">Detalhes do NFT</h2>
           <div className="flex flex-col gap-6 text-text-2">
             {nft.longDescription.split('\n\n').map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>

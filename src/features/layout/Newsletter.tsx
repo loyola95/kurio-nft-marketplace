@@ -18,7 +18,8 @@ export function Newsletter() {
       <h2 className="text-lg leading-4 font-bold">Antecipe-se ao próximo lançamento</h2>
       <form
         noValidate
-        className="flex h-10 overflow-hidden rounded-md bg-surface-3"
+        // Foco do campo aparece no contêiner (o campo não tem contorno próprio).
+        className="flex h-10 overflow-hidden rounded-md bg-surface-3 has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ring"
         onSubmit={(e) => {
           e.preventDefault()
           setFeedback(

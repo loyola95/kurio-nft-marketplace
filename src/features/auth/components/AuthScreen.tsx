@@ -64,7 +64,8 @@ function AuthDialog({ mode, search }: { mode: Mode; search: AuthSearch }) {
     <Dialog open onOpenChange={(open) => !open && void navigate({ to: '/' })}>
       <DialogContent
         showCloseButton={false}
-        overlayClassName="bg-transparent supports-backdrop-filter:backdrop-blur-none"
+        // Comentário #8 do Figma: a Início atrás escurece e desfoca para o modal ganhar foco.
+        overlayClassName="bg-black/30 supports-backdrop-filter:backdrop-blur-xs"
         aria-describedby={undefined}
         // Abre com o foco no primeiro campo, não no botão de fechar.
         onOpenAutoFocus={(event) => {

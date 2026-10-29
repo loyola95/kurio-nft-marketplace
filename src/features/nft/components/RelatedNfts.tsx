@@ -58,7 +58,8 @@ export function RelatedNfts({
           <div
             role="group"
             aria-label={`Páginas de ${title}`}
-            className="hidden justify-center gap-2 md:flex"
+            // WCAG 2.5.8: 24px entre os centros, área de toque de 24px sem sobrepor a vizinha.
+            className="hidden justify-center gap-3 md:flex"
           >
             {Array.from({ length: pages }, (_, i) => (
               <button

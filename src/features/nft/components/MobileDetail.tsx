@@ -33,7 +33,7 @@ export function MobileDetailTop({
           <FavoriteButton nftId={nft.id} nftName={nft.name} variant="icon" size="lg" />
         </div>
         {/* O frame mobile mostra só a arte principal: as bolinhas ficam sob a arte no Figma. */}
-        <div className="mt-2 h-[356px] overflow-hidden rounded-3xl">
+        <div data-art className="mt-2 h-[356px] overflow-hidden rounded-3xl">
           <NftImage
             image={nft.image}
             priority

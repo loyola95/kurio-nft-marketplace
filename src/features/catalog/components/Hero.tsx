@@ -44,7 +44,8 @@ export function Hero() {
           </Button>
         </div>
         {slides.length > 1 && (
-          <div role="group" aria-label="Destaques" className="flex justify-end gap-2">
+          // WCAG 2.5.8: 24px entre os centros (área de toque de 24px sem sobrepor a vizinha).
+          <div role="group" aria-label="Destaques" className="flex justify-end gap-4">
             {slides.map((s, i) => (
               <button
                 key={s.id}
@@ -53,7 +54,7 @@ export function Hero() {
                 aria-pressed={i === index}
                 onClick={() => setIndex(i)}
                 className={cn(
-                  'size-2 rounded-full bg-primary transition-opacity after:absolute after:-m-3 after:size-8',
+                  'relative size-2 rounded-full bg-primary transition-opacity after:absolute after:-inset-2',
                   i === index ? 'opacity-100' : 'opacity-40 hover:opacity-70',
                 )}
               />
@@ -150,7 +151,8 @@ export function MobileHero() {
         <div
           role="group"
           aria-label="Destaques"
-          className="absolute bottom-[5px] left-1/2 flex -translate-x-1/2 gap-1.5"
+          // WCAG 2.5.8: 24px entre os centros, cada indicador com área de toque de 24px.
+          className="absolute bottom-[5px] left-1/2 flex -translate-x-1/2 gap-[17px]"
         >
           {slides.map((s, i) => (
             <button
@@ -160,7 +162,7 @@ export function MobileHero() {
               aria-pressed={i === index}
               onClick={() => setIndex(i)}
               className={cn(
-                'relative size-[7px] rounded-full bg-primary transition-opacity after:absolute after:-inset-2',
+                'relative size-[7px] rounded-full bg-primary transition-opacity after:absolute after:-inset-[8.5px]',
                 i === index ? 'opacity-100' : 'opacity-60',
               )}
             />

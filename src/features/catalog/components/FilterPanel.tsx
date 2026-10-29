@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Slider } from '@/components/ui/slider'
 import type { CatalogPage } from '@/contracts/nft'
-import { formatEthRange } from '@/lib/money'
 import { cn } from '@/lib/utils'
 import { useCatalogSearch } from '../useCatalogSearch'
 
@@ -47,6 +46,13 @@ function FacetRow({
   )
 }
 
+const toInput = (v: number) => v.toFixed(2).replace('.', ',')
+
+/**
+ * Faixa de preço do Figma (slider + "Preço: 0,02 - 12,30 ETH" + Aplicar). Os dois
+ * números da linha são campos editáveis (comentário #60): digitar move o slider,
+ * arrastar atualiza os números e Enter aplica. Valores fora da faixa são corrigidos.
+ */
 function PriceFilter({ range }: { range: Facets['priceRange'] }) {
   const { search, update } = useCatalogSearch()
   const min = Number(range.min)
@@ -56,9 +62,56 @@ function PriceFilter({ range }: { range: Facets['priceRange'] }) {
     search.precoMax ? Number(search.precoMax) : max,
   ]
   const [value, setValue] = useState<[number, number]>(applied)
+  // Texto em edição de cada campo; null mostra o valor do slider.
+  const [typing, setTyping] = useState<[string | null, string | null]>([null, null])
   const labelId = useId()
 
-  const text = formatEthRange(value[0].toFixed(2), value[1].toFixed(2))
+  const clampPair = (next: [number, number], edited: 0 | 1): [number, number] => {
+    const [lo, hi] = next.map((n) => Math.min(max, Math.max(min, n))) as [number, number]
+    if (lo <= hi - 0.01) return [lo, hi]
+    return edited === 0 ? [Math.max(min, hi - 0.01), hi] : [lo, Math.min(max, lo + 0.01)]
+  }
+
+  const commit = (index: 0 | 1): [number, number] => {
+    const raw = typing[index]
+    setTyping([null, null])
+    if (raw === null) return value
+    const parsed = Number(raw.replace(',', '.'))
+    if (!Number.isFinite(parsed) || raw.trim() === '') return value
+    const next: [number, number] = [...value]
+    next[index] = Math.round(parsed * 100) / 100
+    const clamped = clampPair(next, index)
+    setValue(clamped)
+    return clamped
+  }
+
+  const apply = (v: [number, number]) =>
+    update({
+      precoMin: v[0] > min ? v[0].toFixed(2) : undefined,
+      precoMax: v[1] < max ? v[1].toFixed(2) : undefined,
+    })
+
+  const field = (index: 0 | 1, label: string) => (
+    <input
+      aria-label={label}
+      inputMode="decimal"
+      value={typing[index] ?? toInput(value[index])}
+      onChange={(e) => {
+        const next: [string | null, string | null] = [...typing]
+        next[index] = e.target.value.replace(/[^\d.,]/g, '')
+        setTyping(next)
+      }}
+      onBlur={() => commit(index)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault()
+          apply(commit(index))
+        }
+      }}
+      className="w-[5ch] border-b border-dashed border-text-3 bg-transparent text-center outline-none hover:border-primary focus:border-solid focus:border-primary focus:bg-surface-2"
+    />
+  )
+
   return (
     <div className="flex flex-col gap-3 pl-3">
       <Slider
@@ -67,24 +120,23 @@ function PriceFilter({ range }: { range: Facets['priceRange'] }) {
         step={0.01}
         value={value}
         minStepsBetweenThumbs={1}
-        onValueChange={(v) => setValue([v[0], v[1]])}
+        onValueChange={(v) => {
+          setTyping([null, null])
+          setValue([v[0], v[1]])
+        }}
         thumbLabels={['Preço mínimo', 'Preço máximo']}
         getValueText={(v) => `${v.toFixed(2).replace('.', ',')} ETH`}
         className="h-[21px]"
       />
       <p id={labelId} className="text-[15px] leading-5">
-        Preço: {text}
+        Preço: {field(0, 'Preço mínimo em ETH')} - {field(1, 'Preço máximo em ETH')} ETH
+        <span className="sr-only">. Digite os valores ou use o controle deslizante.</span>
       </p>
       <Button
         type="button"
         size="sm"
         className="h-9 w-[92px] rounded-md px-3 text-base leading-5 font-bold"
-        onClick={() =>
-          update({
-            precoMin: value[0] > min ? value[0].toFixed(2) : undefined,
-            precoMax: value[1] < max ? value[1].toFixed(2) : undefined,
-          })
-        }
+        onClick={() => apply(value)}
       >
         Aplicar
       </Button>

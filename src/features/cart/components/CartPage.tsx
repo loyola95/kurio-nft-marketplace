@@ -9,7 +9,7 @@ import { usePageTitle } from '@/lib/usePageTitle'
 import { cn } from '@/lib/utils'
 import { useCart, useDismissCartNotices } from '../queries'
 import { CART_COLUMNS, CartItemRow } from './CartItemRow'
-import { CartSummary } from './CartSummary'
+import { CartSummary, CartSummarySkeleton } from './CartSummary'
 
 function Notices({ cart }: { cart: Cart }) {
   const dismiss = useDismissCartNotices()
@@ -138,9 +138,9 @@ export function CartPage() {
               </ul>
             )}
           </div>
-          {cart && !empty && (
+          {(isPending || (cart && !empty)) && (
             <div className="mt-auto lg:mt-0 lg:ml-auto lg:w-[332px] xl:ml-0">
-              <CartSummary cart={cart} />
+              {cart ? <CartSummary cart={cart} /> : <CartSummarySkeleton />}
             </div>
           )}
         </div>

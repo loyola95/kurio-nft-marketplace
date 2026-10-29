@@ -31,7 +31,10 @@ export function Gallery({ images, name }: { images: Image[]; name: string }) {
           </button>
         ))}
       </div>
-      <div className="grid aspect-square w-full max-w-[444px] place-items-center overflow-hidden rounded-md bg-surface p-4 md:p-5">
+      <div
+        data-art
+        className="grid aspect-square w-full max-w-[444px] place-items-center overflow-hidden rounded-md bg-surface p-4 md:p-5"
+      >
         <div className="size-full overflow-hidden rounded-[24px]">
           <NftImage
             image={current}

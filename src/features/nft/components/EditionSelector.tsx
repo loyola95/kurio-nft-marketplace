@@ -1,3 +1,4 @@
+import { useId, useRef, type KeyboardEvent } from 'react'
 import type { Edition } from '@/contracts/nft'
 import { cn } from '@/lib/utils'
 
@@ -20,14 +21,48 @@ export function EditionSelector({
   /** Espaçamentos do frame mobile. */
   compact?: boolean
 }) {
+  // O seletor aparece duas vezes na página (desktop e mobile): id próprio para o rótulo.
+  const labelId = useId()
+  const group = useRef<HTMLDivElement>(null)
+  const selectable = editions.filter((e) => e.status === 'available')
+
+  // Padrão ARIA de radiogroup: Tab entra pela opção marcada; setas, Home e End
+  // trocam a edição pulando as esgotadas ou indisponíveis.
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const index = selectable.findIndex((e) => e.id === selectedId)
+    const last = selectable.length - 1
+    const next =
+      event.key === 'ArrowRight' || event.key === 'ArrowDown'
+        ? index >= last
+          ? 0
+          : index + 1
+        : event.key === 'ArrowLeft' || event.key === 'ArrowUp'
+          ? index <= 0
+            ? last
+            : index - 1
+          : event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? last
+              : null
+    if (next === null || !selectable[next]) return
+    event.preventDefault()
+    const target = selectable[next]
+    onSelect(target.id)
+    group.current?.querySelector<HTMLElement>(`[data-edition="${target.id}"]`)?.focus()
+  }
+
   return (
     <div className={cn('flex flex-col', compact ? 'gap-2' : 'gap-3')}>
-      <p id="edicao-rotulo" className="text-[15px] leading-4 font-bold">
+      <p id={labelId} className="text-[15px] leading-4 font-bold">
         Edição:
       </p>
       <div
+        ref={group}
         role="radiogroup"
-        aria-labelledby="edicao-rotulo"
+        aria-labelledby={labelId}
+        onKeyDown={onKeyDown}
+        tabIndex={-1}
         className={cn('flex flex-wrap', compact ? 'gap-3' : 'gap-1.5')}
       >
         {editions.map((e) => {
@@ -40,6 +75,8 @@ export function EditionSelector({
               type="button"
               role="radio"
               aria-checked={selected}
+              data-edition={e.id}
+              tabIndex={selected ? 0 : -1}
               aria-disabled={blocked || undefined}
               aria-label={status ? `${e.label}, ${status.toLowerCase()}` : e.label}
               title={status ?? undefined}

@@ -36,7 +36,8 @@ export function CatalogSearchBar({ className }: { className?: string }) {
       <label htmlFor={id} className="sr-only">
         Buscar NFTs por nome ou coleção
       </label>
-      <div className="flex h-[45px] items-center gap-2 rounded-[10px] bg-surface px-3">
+      {/* O campo não tem contorno próprio: o foco aparece no contêiner, como no resto do site. */}
+      <div className="flex h-[45px] items-center gap-2 rounded-[10px] bg-surface px-3 has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ring">
         <Icon name="search" size={22} className="text-text-3" />
         <input
           id={id}

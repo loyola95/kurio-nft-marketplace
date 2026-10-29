@@ -3,6 +3,7 @@ import { useId, useState, type FormEvent, type ReactNode } from 'react'
 import { isApiError } from '@/api/errors'
 import type { Cart } from '@/contracts/cart'
 import { formatEth } from '@/lib/money'
+import { Skeleton } from '@/components/ui/skeleton'
 import { cn } from '@/lib/utils'
 import { useApplyCoupon, useRemoveCoupon } from '../queries'
 
@@ -176,6 +177,39 @@ export function CartSummary({ cart }: { cart: Cart }) {
         >
           Continuar explorando
         </Link>
+      </div>
+    </section>
+  )
+}
+
+/**
+ * Esqueleto do resumo com as mesmas caixas do resumo final (medidas no DOM):
+ * desktop 332x387 (cabeçalho, cupom 64, linhas 150, botões 72) e mobile com a
+ * folha arredondada (cupom 50, linhas 127, botão 60).
+ */
+export function CartSummarySkeleton() {
+  return (
+    <section
+      aria-label="Carregando resumo"
+      aria-busy="true"
+      className="-mx-6 mt-1 flex flex-col gap-3 rounded-t-[40px] bg-surface px-6 pt-6 pb-9 lg:mx-0 lg:mt-0 lg:gap-6 lg:rounded-none lg:bg-transparent lg:p-0"
+    >
+      <div className="flex h-[29px] flex-col gap-3 max-lg:hidden">
+        <Skeleton className="h-4 w-[180px]" />
+        <hr className="border-primary/30" />
+      </div>
+      <div className="flex h-[50px] flex-col justify-end gap-2 lg:h-16">
+        <Skeleton className="h-4 w-[150px] max-lg:hidden" />
+        <Skeleton className="h-full rounded-[40px] lg:h-10 lg:rounded-[3px]" />
+      </div>
+      <div className="flex h-[127px] flex-col justify-between lg:h-[150px]">
+        {Array.from({ length: 4 }, (_, i) => (
+          <Skeleton key={i} className="h-5 w-full" />
+        ))}
+      </div>
+      <div className="mt-5 flex h-[60px] flex-col gap-3 lg:mt-0 lg:h-[72px]">
+        <Skeleton className="h-[60px] rounded-[40px] lg:h-10 lg:rounded-[3px]" />
+        <Skeleton className="mx-auto h-5 w-[170px] max-lg:hidden" />
       </div>
     </section>
   )
