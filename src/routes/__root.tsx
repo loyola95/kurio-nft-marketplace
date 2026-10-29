@@ -8,6 +8,7 @@ import { Header } from '@/features/layout/Header'
 import { MobileTabBar } from '@/features/layout/MobileTabBar'
 import { NotFound } from '@/features/layout/NotFound'
 import { ConnectionStatus } from '@/features/layout/ConnectionStatus'
+import { ScenarioLauncher } from '@/features/devtools/ScenarioLauncher'
 import { RealtimeProvider } from '@/realtime/RealtimeProvider'
 import { useAuthErrorHandler } from '@/features/auth/useAuthErrorHandler'
 
@@ -64,6 +65,7 @@ function RootLayout() {
       <Toaster position="top-center" mobileOffset={{ top: 72 }} />
       <Announcer />
       <ConnectionStatus />
+      <ScenarioLauncher />
     </RealtimeProvider>
   )
 }

@@ -82,6 +82,7 @@ for (const order of Object.values(db.get().orders)) {
 registerMockStats(() => ({
   quotes: Object.keys(db.get().quotes).length,
   walletConnections: Object.keys(db.get().connections).length,
+  ordersHeld: db.get().scenarioEffects.includes(HOLD),
 }))
 
 // --- Cenários "preço alterado" e "esgotado" no checkout: acontecem uma vez,
