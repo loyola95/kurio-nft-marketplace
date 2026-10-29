@@ -8,12 +8,13 @@ import { UserMenu } from './UserMenu'
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { label: 'Início', to: '/' as const, match: (p: string) => p === '/' || p.startsWith('/nft') },
+  { label: 'Início', to: '/' as const, match: (p: string) => p === '/' },
   {
     label: 'Mercado',
     to: '/' as const,
     hash: 'catalogo',
-    match: (p: string) => p.startsWith('/carrinho') || p.startsWith('/pagamento'),
+    match: (p: string) =>
+      p.startsWith('/nft') || p.startsWith('/carrinho') || p.startsWith('/pagamento'),
   },
   {
     label: 'Criadores',
