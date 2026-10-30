@@ -22,7 +22,7 @@ export function QuantityStepper({
   onChange: (value: number) => void
   label?: string
   limitMessage?: string
-  /** md: detalhe desktop; sm: pílulas 20x30 (detalhe mobile e carrinho desktop); round: círculos 24px do carrinho mobile. */
+  /** md: detalhe desktop; sm: círculos 28px (detalhe mobile e carrinho desktop; o Figma usa pílulas 20x30, estreitas demais); round: círculos 24px do carrinho mobile. */
   size?: 'md' | 'sm' | 'round'
   disabled?: boolean
 }) {
@@ -46,7 +46,7 @@ export function QuantityStepper({
       : 'border-background bg-primary text-black hover:bg-highlight disabled:hover:bg-primary',
     size === 'md' && 'h-[50px] w-[33px]',
     size === 'sm' &&
-      'relative h-[30px] w-5 shadow-[0_4px_12px_-2px_rgb(20_13_10/0.15)] after:absolute after:-inset-x-2 after:-inset-y-1',
+      'relative size-7 shadow-[0_4px_12px_-2px_rgb(20_13_10/0.15)] after:absolute after:-inset-1.5',
     // No limite o botão só desabilita (o Figma mantém a cor); edição indisponível apaga tudo.
     disabled && 'opacity-40',
   )

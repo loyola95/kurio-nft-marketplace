@@ -7,8 +7,11 @@ import { NftImage } from './NftImage'
 
 /** Banner "NFT em destaque / oferta limitada" da barra lateral. */
 export function Spotlight() {
-  const { data } = useQuery(featuredOptions)
+  const { data, isError } = useQuery(featuredOptions)
   const nft = data?.spotlight
+  // Sem destaques (falha da API) o bloco some, em vez de ficar vazio com o skeleton.
+  if (isError && !data) return null
+
   return (
     <section
       aria-labelledby="destaque-titulo"

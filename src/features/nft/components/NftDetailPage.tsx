@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link, getRouteApi, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { isApiError } from '@/api/errors'
 import { Button } from '@/components/ui/button'
@@ -57,6 +57,16 @@ function Detail({ nft }: { nft: NftDetail }) {
   const navigate = useNavigate()
   const edition = pickEdition(nft, search.edicao)
   const inCart = useQuantityInCart(edition.id)
+  // Os links "avaliações" (desktop e celular) apontam para as abas: além de rolar até
+  // elas, abrem a aba de avaliações.
+  const [tab, setTab] = useState('detalhes')
+  useEffect(() => {
+    const open = (e: MouseEvent) => {
+      if ((e.target as Element | null)?.closest('a[href="#avaliacoes"]')) setTab('avaliacoes')
+    }
+    document.addEventListener('click', open)
+    return () => document.removeEventListener('click', open)
+  }, [])
   const limit = Math.max(0, Math.min(edition.available, edition.maxPerOrder) - inCart)
   const [quantity, setQuantity] = useState(1)
   const qty = Math.min(Math.max(1, quantity), Math.max(1, limit))
@@ -80,8 +90,10 @@ function Detail({ nft }: { nft: NftDetail }) {
       { nftId: nft.id, editionId: edition.id, quantity: qty },
       {
         onSuccess: () => {
-          toast.success(`${nft.name} (${edition.label}) adicionado ao carrinho.`)
+          // "Comprar" leva ao carrinho, que já mostra o item: o aviso seria redundante e
+          // cobriria a própria linha. Só o botão que fica na página avisa.
           if (goToCart) void navigate({ to: '/carrinho' })
+          else toast.success(`${nft.name} (${edition.label}) adicionado ao carrinho.`)
         },
         onError: (error) => {
           toast.error(
@@ -104,17 +116,25 @@ function Detail({ nft }: { nft: NftDetail }) {
 
       <div className="hidden flex-col gap-3 md:flex">
         <nav aria-label="Trilha de navegação">
-          <ol className="flex gap-1 text-[15px] leading-4 font-bold">
+          <ol className="flex flex-wrap text-[15px] leading-4 font-bold">
             <li>
               <Link to="/" className="hover:text-highlight">
                 Início
               </Link>
-              <span aria-hidden> / </span>
+              <span aria-hidden className="mx-1.5">
+                /
+              </span>
             </li>
             <li>
               <Link to="/" hash="catalogo" className="hover:text-highlight">
                 Mercado
               </Link>
+              <span aria-hidden className="mx-1.5">
+                /
+              </span>
+            </li>
+            <li aria-current="page" className="font-medium text-text-2">
+              {nft.name}
             </li>
           </ol>
         </nav>
@@ -206,7 +226,7 @@ function Detail({ nft }: { nft: NftDetail }) {
         </section>
       </div>
 
-      <Tabs defaultValue="detalhes" className="flex flex-col gap-3" id="avaliacoes">
+      <Tabs value={tab} onValueChange={setTab} className="flex flex-col gap-3" id="avaliacoes">
         <TabsList className="relative h-auto w-full justify-start gap-6 rounded-none border-b md:gap-8 border-primary/30 bg-transparent p-0">
           <TabsTrigger
             value="detalhes"

@@ -17,7 +17,7 @@ export function OrderLines({ lines }: { lines: QuoteLine[] }) {
     <div className="flex flex-col gap-3">
       <div aria-hidden className={cn(COLUMNS, 'text-xs leading-4 sm:text-base')}>
         <span className="font-bold">NFTs</span>
-        <span className="text-center font-medium">Edições</span>
+        <span className="text-center font-medium">Quantidade</span>
         <span className="text-right font-medium">Subtotal</span>
       </div>
       <hr className="border-primary/30" />
@@ -169,7 +169,7 @@ export function OrderCard({
         <hr className="border-primary/30" />
         {/* Frame: texto da rede e botão a 20px. */}
         <div className="flex flex-col items-center gap-5">
-          <div className="text-center text-sm leading-[22px] text-text-2">{note}</div>
+          <div className="text-center text-sm leading-[22px] text-balance text-text-2">{note}</div>
           {actions && <div className="flex flex-col items-center gap-3">{actions}</div>}
         </div>
       </div>

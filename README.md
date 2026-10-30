@@ -34,6 +34,7 @@ O `.env` versionado já tem os valores da demonstração, que são os mesmos do 
 | `VITE_API_BASE_URL`    | `/api`                      | base da API REST                                                   |
 | `VITE_REALTIME_URL`    | `wss://realtime.kurio.mock` | endereço do Socket.IO                                              |
 | `VITE_HTTP_TIMEOUT_MS` | `8000`                      | timeout das requisições do cliente                                 |
+| `VITE_DEMO_HINT`       | texto com o acesso de teste | dica de acesso da demonstração mostrada no login (opcional)        |
 
 ## Credenciais fictícias
 

@@ -2,6 +2,7 @@ import { Outlet, createRootRouteWithContext, useLocation } from '@tanstack/react
 import type { RouterContext } from '@/app/router'
 import { Toaster } from '@/components/ui/sonner'
 import { cn } from '@/lib/utils'
+import { useMediaQuery } from '@/lib/useMediaQuery'
 import { Announcer } from '@/features/layout/Announcer'
 import { Footer } from '@/features/layout/Footer'
 import { Header } from '@/features/layout/Header'
@@ -20,6 +21,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 const TAB_BAR_ROUTES = ['/', '/perfil', '/perfil/carteiras', '/perfil/favoritos', '/indisponivel']
 
 function RootLayout() {
+  const desktop = useMediaQuery('(min-width: 1024px)')
   const { pathname } = useLocation()
   const withTabBar = TAB_BAR_ROUTES.includes(pathname)
   // No mobile login e cadastro são telas cheias, sem rodapé (frames Mobile / Login e Cadastro).
@@ -61,8 +63,10 @@ function RootLayout() {
         </div>
       </div>
       {withTabBar && <MobileTabBar />}
-      {/* No mobile os avisos descem para não cobrir os botões do topo (voltar, favoritar, busca). */}
-      <Toaster position="top-center" mobileOffset={{ top: 72 }} />
+      {/* Desktop: canto inferior direito, longe do cabeçalho e dos modais. Mobile: logo abaixo
+          da fileira de botões do topo (voltar, favoritar), sem cobri-los: embaixo ficam a barra
+          de navegação e a de compra. */}
+      <Toaster position={desktop ? 'bottom-right' : 'top-center'} mobileOffset={{ top: 72 }} />
       <Announcer />
       <ConnectionStatus />
       <ScenarioLauncher />

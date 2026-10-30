@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { isApiError } from '@/api/errors'
 import { Icon } from '@/components/icon'
 import type { CartItem } from '@/contracts/cart'
@@ -7,7 +8,7 @@ import { NftImage } from '@/features/catalog/components/NftImage'
 import { QuantityStepper } from '@/features/nft/components/QuantityStepper'
 import { formatEth } from '@/lib/money'
 import { cn } from '@/lib/utils'
-import { useRemoveCartItem, useUpdateCartItem } from '../queries'
+import { useRemoveCartItem, useRestoreCartItem, useUpdateCartItem } from '../queries'
 
 /** Colunas da tabela do Figma (NFTs, Preço, Edições, Total, excluir) com 61px entre elas. */
 export const CART_COLUMNS = 'lg:grid-cols-[250px_77px_75px_87px_24px] lg:gap-x-[61px]'
@@ -26,6 +27,7 @@ export function CartItemRow({
 }) {
   const update = useUpdateCartItem()
   const remove = useRemoveCartItem()
+  const restore = useRestoreCartItem()
   const [error, setError] = useState<string | null>(null)
   const label = `${item.name} (${item.editionLabel})`
   const soldOut = item.status === 'sold_out'
@@ -58,7 +60,22 @@ export function CartItemRow({
       type="button"
       onClick={() => {
         setError(null)
+        // Remove na hora e oferece "Desfazer" (mesma edição e quantidade), em vez de um
+        // diálogo de confirmação a cada remoção.
+        const removed = { nftId: item.nftId, editionId: item.editionId, quantity: item.quantity }
         remove.mutate(item.id, {
+          onSuccess: () =>
+            toast(`${label} removido do carrinho.`, {
+              action: {
+                label: 'Desfazer',
+                onClick: () =>
+                  void restore(removed).catch((e: unknown) =>
+                    toast.error(
+                      isApiError(e) ? e.message : 'Não foi possível devolver o item ao carrinho.',
+                    ),
+                  ),
+              },
+            }),
           onError: fail('Não foi possível remover o item. Tente novamente.'),
         })
       }}
@@ -93,7 +110,7 @@ export function CartItemRow({
             className="size-[100px] shrink-0 rounded-[14px] lg:size-[70px] lg:rounded-md"
           />
           <div className="flex min-w-0 flex-col pt-[13px] pr-[86px] lg:gap-1.5 lg:pt-0 lg:pr-0">
-            <h3 className="truncate text-[15px] leading-4 font-bold lg:text-base">
+            <h3 className="line-clamp-2 text-[15px] leading-5 font-bold break-words lg:line-clamp-none lg:truncate lg:text-base lg:leading-4">
               <Link
                 to="/nft/$nftId"
                 params={{ nftId: item.nftId }}

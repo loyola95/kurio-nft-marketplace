@@ -25,11 +25,15 @@ const Toaster = ({ ...props }: ToasterProps) => {
           '--normal-text': 'var(--popover-foreground)',
           '--normal-border': 'var(--border)',
           '--border-radius': 'var(--radius)',
+          // O Sonner usa a fonte do sistema; os avisos seguem a Roboto Mono do site.
+          fontFamily: 'var(--font-sans)',
         } as React.CSSProperties
       }
       toastOptions={{
         classNames: {
           toast: 'cn-toast',
+          // Ação do aviso ("Desfazer") no laranja do site, não no branco padrão do Sonner.
+          actionButton: '!bg-primary !font-bold !text-primary-foreground hover:!bg-highlight',
         },
       }}
       {...props}

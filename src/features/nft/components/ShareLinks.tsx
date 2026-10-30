@@ -3,7 +3,16 @@ import { Icon } from '@/components/icon'
 
 /** "Compartilhar este NFT": links reais de compartilhamento e cópia do endereço. */
 export function ShareLinks({ name }: { name: string }) {
-  const url = typeof window === 'undefined' ? '' : window.location.href.split('#')[0]
+  // Link limpo para compartilhar: sem os parâmetros da simulação (?cenario, ?painel), que
+  // abririam o site de quem recebe num cenário de teste. A edição escolhida é mantida.
+  const url = (() => {
+    if (typeof window === 'undefined') return ''
+    const current = new URL(window.location.href)
+    const shared = new URL(current.pathname, current.origin)
+    const edition = current.searchParams.get('edicao')
+    if (edition) shared.searchParams.set('edicao', edition)
+    return shared.toString()
+  })()
   const text = encodeURIComponent(`${name} na Kurio`)
   const encodedUrl = encodeURIComponent(url)
 

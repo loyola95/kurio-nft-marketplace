@@ -15,7 +15,7 @@ export function Newsletter() {
 
   return (
     <div className="flex flex-col gap-3">
-      <h2 className="text-lg leading-4 font-bold">Antecipe-se ao próximo lançamento</h2>
+      <h2 className="text-lg leading-[22px] font-bold">Antecipe-se ao próximo lançamento</h2>
       <form
         noValidate
         // Foco do campo aparece no contêiner (o campo não tem contorno próprio).
@@ -28,7 +28,10 @@ export function Newsletter() {
                   kind: 'info',
                   text: 'A inscrição na newsletter não está disponível nesta demonstração.',
                 }
-              : { kind: 'error', text: 'Informe um e-mail válido.' },
+              : {
+                  kind: 'error',
+                  text: email.trim() ? 'Informe um e-mail válido.' : 'Informe seu e-mail.',
+                },
           )
         }}
       >

@@ -96,6 +96,7 @@ const FIGMA_GRID: {
 const EMERALD_LONG_DESCRIPTION =
   'Emerald Ape #042 é uma obra digital 1/50 finalizada à mão da coleção Kurio Apes. Cada atributo fica armazenado nos metadados do token e verificado na Ethereum. A obra explora identidade, movimento e luz em um mundo digital sem fronteiras.\n\nA propriedade inclui a arte em alta resolução, lançamentos exclusivos para colecionadores e um registro permanente de procedência registrada na rede. Nova Sato recebe 5% de direitos autorais nas vendas secundárias, apoiando novos trabalhos e lançamentos da comunidade.'
 
+// 20 autores e 20 comentários: as avaliações de um NFT (até 19) não repetem nome nem texto.
 const REVIEWERS = [
   'Lia M.',
   'Caio R.',
@@ -105,6 +106,18 @@ const REVIEWERS = [
   'Theo A.',
   'Bia C.',
   'Gui F.',
+  'Malu V.',
+  'Enzo L.',
+  'Iris N.',
+  'Davi K.',
+  'Sofia B.',
+  'Otto G.',
+  'Lara D.',
+  'Bento H.',
+  'Cora J.',
+  'Vini Q.',
+  'Alice W.',
+  'Ravi Z.',
 ]
 const COMMENTS = [
   'Arte impecável, chegou na carteira em segundos.',
@@ -113,6 +126,20 @@ const COMMENTS = [
   'Os detalhes em alta resolução são incríveis.',
   'Compraria outra edição sem pensar.',
   'Ótimo custo para uma edição limitada.',
+  'A paleta de cores fica ainda melhor em tela grande.',
+  'Primeira compra na Kurio, processo simples do início ao fim.',
+  'Gostei de ver o histórico de procedência antes de comprar.',
+  'Peça central da minha coleção agora.',
+  'O criador respondeu dúvidas rápido no canal da comunidade.',
+  'Edição bem pensada, a numeração faz sentido.',
+  'Os metadados estão completos e organizados.',
+  'Valeu cada ETH, acompanho o artista desde o começo.',
+  'A arte tem personalidade, dá vontade de olhar de perto.',
+  'Recebi a confirmação do pedido sem nenhum susto.',
+  'Taxa de rede clara antes de confirmar, sem surpresa.',
+  'Combina com as outras peças que já tenho da coleção.',
+  'Qualidade de acabamento acima da média do mercado.',
+  'Comprei para presentear e a pessoa adorou.',
 ]
 
 const BASE_DATE = Date.UTC(2026, 9, 28, 12, 0, 0)
@@ -254,13 +281,22 @@ export function buildNfts(): MockNft[] {
     const editions = editionsFor(id, price, rand, overrides)
 
     const reviewCount = id === 'emerald-ape-042' ? 19 : randomInt(rand, 0, 12)
-    const reviews: Review[] = Array.from({ length: reviewCount }, (_, r) => ({
-      id: `${id}-r${r}`,
-      author: pick(rand, REVIEWERS),
-      rating: id === 'emerald-ape-042' ? (r < 15 ? 5 : 4) : randomInt(rand, 3, 5),
-      comment: pick(rand, COMMENTS),
-      createdAt: new Date(BASE_DATE - (r + 1) * 86_400_000).toISOString(),
-    }))
+    // Autor e comentário saem em sequência a partir de um ponto fixo por NFT, então não
+    // se repetem dentro do mesmo NFT. As chamadas a rand() continuam as mesmas, na mesma
+    // ordem, para não mudar o resto do seed (preços e estoque dos NFTs seguintes).
+    const start = [...id].reduce((sum, ch) => sum + ch.charCodeAt(0), 0)
+    const reviews: Review[] = Array.from({ length: reviewCount }, (_, r) => {
+      rand() // antes: sorteio do autor
+      const rating = id === 'emerald-ape-042' ? (r < 15 ? 5 : 4) : randomInt(rand, 3, 5)
+      rand() // antes: sorteio do comentário
+      return {
+        id: `${id}-r${r}`,
+        author: REVIEWERS[(start + r) % REVIEWERS.length],
+        rating,
+        comment: COMMENTS[(start * 7 + r) % COMMENTS.length],
+        createdAt: new Date(BASE_DATE - (r + 1) * 86_400_000).toISOString(),
+      }
+    })
 
     const main = image(meta.art, `${name}, arte digital da coleção ${meta.collection}`)
     nfts.push({

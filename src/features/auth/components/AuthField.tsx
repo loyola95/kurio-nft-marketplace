@@ -62,7 +62,11 @@ export function AuthField({
             )}
           >
             <Icon name={visible ? 'eye' : 'eye-off'} size={variant === 'dialog' ? 23 : 18} />
-            <span className="sr-only">{visible ? 'Ocultar senha' : 'Mostrar senha'}</span>
+            <span className="sr-only">
+              {/* "Confirmar senha" vira "confirmação da senha": os dois botões do cadastro
+                  precisam de nomes diferentes para o leitor de tela. */}
+              {`${visible ? 'Ocultar' : 'Mostrar'} ${label === 'Confirmar senha' ? 'confirmação da senha' : 'senha'}`}
+            </span>
           </button>
         )}
       </div>

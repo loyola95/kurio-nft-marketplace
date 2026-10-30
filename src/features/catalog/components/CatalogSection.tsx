@@ -13,7 +13,7 @@ import { Spotlight } from './Spotlight'
 import { EmptyState, ErrorState } from './States'
 
 export function CatalogSection() {
-  const { search, clear, hasFilters } = useCatalogSearch()
+  const { search, update, clear, hasFilters } = useCatalogSearch()
   const query = toCatalogQuery(search)
   const list = useQuery(catalogListOptions(query))
   const data = list.data
@@ -36,7 +36,7 @@ export function CatalogSection() {
         aria-label="Filtros do catálogo"
         className="hidden w-[310px] shrink-0 flex-col gap-6 lg:flex"
       >
-        <FilterPanel facets={facets} />
+        <FilterPanel facets={facets} failed={list.isError} />
         <Spotlight />
       </aside>
 
@@ -56,8 +56,21 @@ export function CatalogSection() {
         </div>
 
         {(search.q || search.categorias?.length) && (
-          <p className="text-sm text-text-2">
-            {search.q && <>Resultados para “{search.q}”. </>}
+          <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-2">
+            {/* A busca vira um chip removível: dá para ver e desfazer só ela, sem limpar os filtros. */}
+            {search.q && (
+              <>
+                Resultados para
+                <button
+                  type="button"
+                  onClick={() => update({ q: undefined })}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-primary/60 px-2.5 py-0.5 text-highlight hover:border-primary"
+                >
+                  “{search.q}”<span aria-hidden>×</span>
+                  <span className="sr-only">(limpar a busca)</span>
+                </button>
+              </>
+            )}
             {search.categorias?.length
               ? `Coleções: ${search.categorias.map((c) => CATEGORY_LABEL[c]).join(', ')}.`
               : null}

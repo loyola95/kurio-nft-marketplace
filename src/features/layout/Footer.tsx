@@ -158,14 +158,14 @@ export function Footer() {
             </div>
             <div className="flex flex-col gap-3">
               <h2 className="text-lg leading-4 font-bold">Carteiras compatíveis</h2>
-              <p className="rounded-md border border-border-strong bg-surface-3 px-2 py-2 text-[9px] leading-3 font-bold tracking-[0.1px] text-highlight">
+              <p className="w-fit rounded-md border border-border-strong bg-surface-3 px-2 py-2 text-[9px] leading-3 font-bold tracking-[0.1px] text-highlight">
                 METAMASK • WALLETCONNECT • COINBASE
               </p>
             </div>
           </div>
         </div>
       </div>
-      <p className="py-1 text-center text-sm leading-[30px] lg:py-0">
+      <p className="px-4 py-3 text-center text-sm leading-5 text-balance lg:py-0 lg:leading-[30px]">
         © 2026 Kurio. Propriedade digital para todos.
       </p>
     </footer>

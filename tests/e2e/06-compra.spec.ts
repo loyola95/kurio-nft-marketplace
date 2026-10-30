@@ -68,9 +68,15 @@ test.describe('compra', () => {
     await expect(card.getByText('(x 2)')).toBeVisible()
     await expect(card.locator('dd[data-label="Taxa de rede"]')).toHaveText('0.016 ETH')
     await expect(card.locator('dd[data-label="Total"]')).toHaveText('3.386 ETH')
-    await expect(card.getByRole('link', { name: /Ver no Etherscan/ })).toHaveAttribute(
+    // Transação simulada: o botão do explorer explica e mostra o hash, sem sair do app.
+    await card.getByRole('button', { name: 'Ver no Etherscan' }).click()
+    await expect(
+      card.getByText('Transação simulada na demonstração.', { exact: false }),
+    ).toBeVisible()
+    await expect(card.getByText(/^0x[0-9a-f]{64}$/)).toBeVisible()
+    await expect(card.getByRole('link', { name: 'Continuar explorando' })).toHaveAttribute(
       'href',
-      /^https:\/\/etherscan\.io\/tx\/0x[0-9a-f]{64}$/,
+      '/',
     )
 
     // Evento posterior não altera o recibo (snapshot da compra).

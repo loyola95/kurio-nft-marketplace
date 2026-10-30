@@ -2,8 +2,10 @@ import * as React from 'react'
 import { Slider as SliderPrimitive } from 'radix-ui'
 import { cn } from '@/lib/utils'
 
-// Slider do filtro de preço do Figma: trilho laranja de 4 px e alças de 15 px
-// com borda escura. Cada alça recebe rótulo e valor em texto para leitores de tela.
+// Slider do filtro de preço: trilho de 4 px e alças de 15 px com borda escura, como no
+// Figma. Só o intervalo escolhido fica laranja (o Figma pinta o trilho inteiro, o que
+// esconde a seleção) e uma alça nunca passa da outra. Cada alça recebe rótulo e valor
+// em texto para leitores de tela.
 function Slider({
   className,
   defaultValue,
@@ -29,10 +31,11 @@ function Slider({
       value={value}
       min={min}
       max={max}
+      preserveThumbOrder
       className={cn('relative flex w-full touch-none items-center select-none', className)}
       {...props}
     >
-      <SliderPrimitive.Track className="relative h-1 grow overflow-hidden rounded-full bg-primary">
+      <SliderPrimitive.Track className="relative h-1 grow overflow-hidden rounded-full bg-border-strong">
         <SliderPrimitive.Range className="absolute h-full bg-primary" />
       </SliderPrimitive.Track>
       {values.map((v, index) => (

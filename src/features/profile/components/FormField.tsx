@@ -96,7 +96,12 @@ export function SelectControl({
   )
 }
 
-export function PasswordControl({ error, ...props }: ComponentProps<'input'> & { error?: string }) {
+/** Campo de senha com mostrar/ocultar; `fieldName` diferencia os botões quando há vários. */
+export function PasswordControl({
+  error,
+  fieldName = 'senha',
+  ...props
+}: ComponentProps<'input'> & { error?: string; fieldName?: string }) {
   const [visible, setVisible] = useState(false)
   return (
     <span className="relative block">
@@ -111,15 +116,15 @@ export function PasswordControl({ error, ...props }: ComponentProps<'input'> & {
         className="absolute top-1/2 right-[13px] grid -translate-y-1/2 place-items-center text-text-3 after:absolute after:-inset-2"
       >
         <Icon name={visible ? 'eye' : 'eye-off'} size={22} />
-        <span className="sr-only">{visible ? 'Ocultar senha' : 'Mostrar senha'}</span>
+        <span className="sr-only">{`${visible ? 'Ocultar' : 'Mostrar'} ${fieldName}`}</span>
       </button>
     </span>
   )
 }
 
 /**
- * Nome ENS: o Figma mostra ".eth" num seletor, mas ENS só existe com .eth;
- * vira um sufixo fixo na mesma posição (o valor salvo inclui o ".eth").
+ * Nome ENS: o Figma mostra ".eth" num seletor antes do campo, mas ENS só existe com .eth
+ * e se lê "nome.eth": vira um sufixo fixo depois do campo (o valor salvo inclui o ".eth").
  */
 export function EnsControl({
   value,
@@ -135,12 +140,6 @@ export function EnsControl({
   const name = value.replace(/\.eth$/i, '')
   return (
     <span className="flex gap-2.5">
-      <span
-        aria-hidden
-        className="grid h-10 w-[78px] shrink-0 place-items-center rounded-[3px] border border-border text-[15px]"
-      >
-        .eth
-      </span>
       <input
         {...props}
         value={name}
@@ -148,6 +147,12 @@ export function EnsControl({
         onChange={(e) => onChange(e.target.value.trim() ? `${e.target.value.trim()}.eth` : '')}
         className={inputClass(error)}
       />
+      <span
+        aria-hidden
+        className="grid h-10 w-[78px] shrink-0 place-items-center rounded-[3px] border border-border text-[15px]"
+      >
+        .eth
+      </span>
     </span>
   )
 }

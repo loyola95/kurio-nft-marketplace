@@ -22,8 +22,13 @@ export type SessionResponse = z.infer<typeof SessionResponse>
 export const PASSWORD_RULE = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/
 export const USERNAME_RULE = /^[a-z0-9_.]+$/i
 
+/** Campo vazio pede o e-mail; preenchido errado pede um e-mail válido. */
+const EmailField = z.email({
+  error: (issue) => (issue.input ? 'Informe um e-mail válido' : 'Informe seu e-mail'),
+})
+
 export const LoginInput = z.object({
-  email: z.email('Informe um e-mail válido'),
+  email: EmailField,
   password: z.string().min(1, 'Informe sua senha'),
 })
 export type LoginInput = z.infer<typeof LoginInput>
@@ -35,7 +40,7 @@ export const RegisterInput = z.object({
     .min(3, 'Use pelo menos 3 caracteres')
     .max(24, 'Use no máximo 24 caracteres')
     .regex(USERNAME_RULE, 'Use letras, números, ponto ou sublinhado'),
-  email: z.email('Informe um e-mail válido'),
+  email: EmailField,
   password: z
     .string()
     .regex(PASSWORD_RULE, 'A senha precisa de 8 caracteres, com letras e números'),

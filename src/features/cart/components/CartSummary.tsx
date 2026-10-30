@@ -143,13 +143,17 @@ export function CartSummary({ cart }: { cart: Cart }) {
         <Row
           label="Subtotal"
           value={formatEth(summary.subtotalEth)}
-          valueClassName="text-base leading-4 lg:text-lg"
+          valueClassName="text-base leading-4"
         />
-        <Row label="Desconto do lançamento" value={`(-) ${formatEth(summary.discountEth)}`} />
+        <Row
+          label="Desconto do lançamento"
+          value={`(-) ${formatEth(summary.discountEth)}`}
+          valueClassName="text-base leading-4"
+        />
         <Row
           label="Taxa de rede"
           value={formatEth(summary.networkFeeEth)}
-          valueClassName="text-base leading-4 lg:text-lg"
+          valueClassName="text-base leading-4"
         >
           <span className="block text-xs leading-4 text-highlight lg:mt-3">Taxa estimada</span>
         </Row>

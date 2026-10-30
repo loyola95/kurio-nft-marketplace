@@ -52,7 +52,8 @@ export function SortSelect() {
   const { search, update } = useCatalogSearch()
   const id = useId()
   return (
-    <div className="flex items-center gap-1 text-[15px] leading-5">
+    // Na gaveta do celular o seletor desce para a linha de baixo em vez de ser cortado.
+    <div className="flex flex-wrap items-center gap-x-1 gap-y-1 text-[15px] leading-5">
       <label htmlFor={id} className="whitespace-nowrap">
         Ordenar por:
       </label>

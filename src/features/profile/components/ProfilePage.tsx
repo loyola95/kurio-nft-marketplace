@@ -155,7 +155,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
     resolver: zodResolver(profileForm),
     defaultValues: { ...initial.values, ...EMPTY_PASSWORDS },
   })
-  const { errors } = form.formState
+  const { errors, isDirty } = form.formState
 
   // Rascunho por usuário: se a sessão expirar no meio, o formulário volta preenchido.
   // O change de cada campo sobe até o form; as senhas nunca vão para o rascunho.
@@ -166,6 +166,11 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
 
   const submit = form.handleSubmit(async (values) => {
     setSaved(null)
+    // Sem alteração, "Perfil atualizado." seria um falso aviso de sucesso.
+    if (!isDirty && !restored) {
+      setSaved('Nenhuma alteração para salvar.')
+      return
+    }
     const { currentPassword, newPassword, confirmPassword: _confirm, ...data } = values
     const messages: string[] = []
     try {
@@ -277,6 +282,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               autoComplete="current-password"
               {...form.register('currentPassword')}
               error={errors.currentPassword?.message}
+              fieldName="senha atual"
             />
           )}
         </FormField>
@@ -287,6 +293,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               autoComplete="new-password"
               {...form.register('newPassword')}
               error={errors.newPassword?.message}
+              fieldName="nova senha"
             />
           )}
         </FormField>
@@ -297,6 +304,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               autoComplete="new-password"
               {...form.register('confirmPassword')}
               error={errors.confirmPassword?.message}
+              fieldName="confirmação da senha"
             />
           )}
         </FormField>
@@ -306,7 +314,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
         <button
           type="submit"
           disabled={busy}
-          className="h-10 w-[131px] rounded-[3px] bg-primary text-sm leading-4 font-bold text-primary-foreground hover:bg-highlight disabled:opacity-60"
+          className="h-10 min-w-[131px] rounded-[3px] bg-primary px-6 text-sm leading-4 font-bold whitespace-nowrap text-primary-foreground hover:bg-highlight disabled:opacity-60"
         >
           {busy ? 'Salvando…' : 'Salvar'}
         </button>

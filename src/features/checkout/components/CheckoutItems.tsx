@@ -6,11 +6,11 @@ import { CouponForm } from '@/features/cart/components/CartSummary'
 import { NftImage } from '@/features/catalog/components/NftImage'
 import { formatEth } from '@/lib/money'
 
-function Row({ label, value, small }: { label: string; value: string; small?: boolean }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-baseline justify-between gap-3 text-[15px] leading-5">
       <dt>{label}</dt>
-      <dd data-label={label} className={small ? 'text-[15px] leading-5' : 'text-lg leading-4'}>
+      <dd data-label={label} className="text-lg leading-4">
         {value}
       </dd>
     </div>
@@ -98,13 +98,12 @@ export function CheckoutItems({
             <Row
               label="Desconto do lançamento"
               value={`(-) ${formatEth(quote.summary.discountEth)}`}
-              small
             />
             <Row label="Taxa de rede" value={formatEth(quote.summary.networkFeeEth)} />
-            <p className="text-center text-xs leading-4 text-highlight">Taxa estimada</p>
+            <p className="-mt-2 text-right text-xs leading-4 text-highlight">Taxa estimada</p>
             <hr className="border-primary/30" />
-            {/* O total fica recuado 42px dos dois lados, como no frame. */}
-            <div className="flex items-baseline justify-between gap-3 px-[42px] text-base leading-4 font-bold">
+            {/* O frame recua o total 42px dos dois lados; aqui ele alinha com as outras linhas. */}
+            <div className="flex items-baseline justify-between gap-3 text-base leading-4 font-bold">
               <dt>Total</dt>
               <dd data-label="Total" className="text-lg leading-4 text-highlight">
                 {formatEth(quote.summary.totalEth)}

@@ -139,7 +139,7 @@ export function MobileBuyBar({
           type="button"
           onClick={onBuy}
           disabled={!purchasable || pending}
-          className="h-[60px] w-[196px] rounded-[40px] bg-[linear-gradient(108deg,var(--kurio-primary),rgb(210_138_76/0.8))] text-base leading-5 font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+          className="h-[60px] flex-1 rounded-[40px] bg-[linear-gradient(108deg,var(--kurio-primary),rgb(210_138_76/0.8))] text-base leading-5 font-bold text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? 'Adicionando…' : 'Comprar NFT'}
         </button>
@@ -147,7 +147,7 @@ export function MobileBuyBar({
           type="button"
           onClick={onAddToCart}
           disabled={!purchasable || pending}
-          className="grid size-[60px] place-items-center rounded-[40px] border border-border bg-surface-2 text-text-3 hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
+          className="grid size-[60px] shrink-0 place-items-center rounded-[40px] border border-border bg-surface-2 text-text-3 hover:border-primary disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Icon name="shop" size={20} />
           <span className="sr-only">Adicionar ao carrinho sem sair desta página</span>

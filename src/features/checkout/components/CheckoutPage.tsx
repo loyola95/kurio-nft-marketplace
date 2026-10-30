@@ -415,18 +415,22 @@ function CheckoutForm({
   return (
     <div className="flex flex-col gap-8">
       <nav aria-label="Trilha de navegação">
-        <ol className="flex gap-1 text-[15px] leading-4 font-bold">
+        <ol className="flex flex-wrap text-[15px] leading-4 font-bold">
           <li>
             <Link to="/" className="hover:text-highlight">
               Início
             </Link>
-            <span aria-hidden> / </span>
+            <span aria-hidden className="mx-1.5">
+              /
+            </span>
           </li>
           <li>
             <Link to="/" hash="catalogo" className="hover:text-highlight">
               Mercado
             </Link>
-            <span aria-hidden> / </span>
+            <span aria-hidden className="mx-1.5">
+              /
+            </span>
           </li>
           <li aria-current="page">Pagamento</li>
         </ol>

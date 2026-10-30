@@ -10,7 +10,7 @@ import { NftImage } from './NftImage'
 
 /** Destaques do topo (desktop e tablet). A arte troca pelos indicadores; sem autoplay. */
 export function Hero() {
-  const { data } = useQuery(featuredOptions)
+  const { data, isError } = useQuery(featuredOptions)
   const [index, setIndex] = useState(0)
   const slides = data?.hero ?? []
   const current = slides[index]
@@ -73,7 +73,8 @@ export function Hero() {
               alt={`${current.name}, NFT em destaque`}
             />
           </Link>
-        ) : (
+        ) : isError ? null : (
+          // Sem destaques (falha da API) o espaço fica vazio, em vez de um skeleton eterno.
           <Skeleton className="size-full rounded-[24px]" />
         )}
       </div>
@@ -87,7 +88,7 @@ const GLOW =
 
 /** Banner do topo no frame "Mobile / Início": texto à esquerda, duas artes sobrepostas à direita. */
 export function MobileHero() {
-  const { data } = useQuery(featuredOptions)
+  const { data, isError } = useQuery(featuredOptions)
   const [index, setIndex] = useState(0)
   const slides = data?.hero ?? []
   const current = slides[index]
@@ -133,7 +134,7 @@ export function MobileHero() {
                 alt={`${current.name}, NFT em destaque`}
               />
             </Link>
-          ) : (
+          ) : isError ? null : (
             <Skeleton className="size-full rounded-2xl" />
           )}
           {next && (

@@ -74,18 +74,22 @@ export function CartPage() {
     <div className="flex min-h-[calc(100dvh-24px)] flex-col gap-24 lg:min-h-0">
       <div className="flex flex-1 flex-col gap-3">
         <nav aria-label="Trilha de navegação" className="hidden lg:block">
-          <ol className="flex gap-1 text-[15px] leading-4 font-bold">
+          <ol className="flex flex-wrap text-[15px] leading-4 font-bold">
             <li>
               <Link to="/" className="hover:text-highlight">
                 Início
               </Link>
-              <span aria-hidden> / </span>
+              <span aria-hidden className="mx-1.5">
+                /
+              </span>
             </li>
             <li>
               <Link to="/" hash="catalogo" className="hover:text-highlight">
                 Mercado
               </Link>
-              <span aria-hidden> / </span>
+              <span aria-hidden className="mx-1.5">
+                /
+              </span>
             </li>
             <li aria-current="page">Carrinho</li>
           </ol>
@@ -108,13 +112,18 @@ export function CartPage() {
         <div className="flex flex-1 flex-col gap-1 lg:gap-6 xl:grid xl:grid-cols-[782px_332px] xl:items-start xl:justify-between">
           <div className="flex flex-col gap-3 px-1 lg:px-0">
             {cart && <Notices cart={cart} />}
-            <div aria-hidden className={cn('hidden text-base leading-4 lg:grid', CART_COLUMNS)}>
-              <span className="font-bold">NFTs</span>
-              <span className="font-medium">Preço</span>
-              <span className="font-bold">Edições</span>
-              <span className="font-medium">Total</span>
-            </div>
-            <hr className="hidden border-primary/30 lg:block" />
+            {/* Cabeçalho da tabela só quando há linhas (vazio e erro têm o próprio aviso). */}
+            {!empty && !isError && (
+              <>
+                <div aria-hidden className={cn('hidden text-base leading-4 lg:grid', CART_COLUMNS)}>
+                  <span className="font-bold">NFTs</span>
+                  <span className="font-medium">Preço</span>
+                  <span className="font-bold">Quantidade</span>
+                  <span className="font-medium">Total</span>
+                </div>
+                <hr className="hidden border-primary/30 lg:block" />
+              </>
+            )}
             {isPending ? (
               <CartSkeleton />
             ) : isError ? (

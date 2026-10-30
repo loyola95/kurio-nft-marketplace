@@ -68,3 +68,16 @@ export function useQuantityInCart(editionId: string | undefined): number {
   if (!editionId || !data) return 0
   return data.items.filter((i) => i.editionId === editionId).reduce((n, i) => n + i.quantity, 0)
 }
+
+/**
+ * Devolve ao carrinho um item removido ("Desfazer" do aviso). Chama a API direto, sem
+ * depender da linha que já saiu da tela, e grava o carrinho devolvido no cache.
+ */
+export function useRestoreCartItem() {
+  const queryClient = useQueryClient()
+  const { key } = useCartKey()
+  return async (input: AddCartItemInput) => {
+    const cart = await addCartItem(input)
+    queryClient.setQueryData(cartKeys.current(key), cart)
+  }
+}

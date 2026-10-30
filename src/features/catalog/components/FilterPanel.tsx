@@ -136,6 +136,10 @@ function PriceFilter({ range }: { range: Facets['priceRange'] }) {
         type="button"
         size="sm"
         className="h-9 w-[92px] rounded-md px-3 text-base leading-5 font-bold"
+        // Sem mudança em relação ao filtro aplicado, "Aplicar" não teria efeito.
+        disabled={
+          value[0] === applied[0] && value[1] === applied[1] && typing.every((t) => t === null)
+        }
         onClick={() => apply(value)}
       >
         Aplicar
@@ -144,8 +148,26 @@ function PriceFilter({ range }: { range: Facets['priceRange'] }) {
   )
 }
 
-export function FilterPanel({ facets }: { facets: Facets | undefined }) {
+export function FilterPanel({
+  facets,
+  failed = false,
+}: {
+  facets: Facets | undefined
+  /** O catálogo falhou: sem facetas, os skeletons ficariam pulsando para sempre. */
+  failed?: boolean
+}) {
   const { search, toggle, clear, hasFilters } = useCatalogSearch()
+
+  if (failed && !facets) {
+    return (
+      <div className="flex flex-col gap-3 bg-surface p-5">
+        <h2 className="text-lg leading-4 font-bold">Filtros</h2>
+        <p className="text-sm leading-[22px] text-text-2">
+          Os filtros aparecem quando o catálogo carregar.
+        </p>
+      </div>
+    )
+  }
 
   return (
     <div className="flex flex-col gap-10 bg-surface p-5">
@@ -192,7 +214,7 @@ export function FilterPanel({ facets }: { facets: Facets | undefined }) {
         <h2 id="filtro-rede" className="text-lg leading-4 font-bold">
           Rede
         </h2>
-        <ul className="pl-3">
+        <ul className="px-3">
           {facets
             ? facets.networks.map((n) => (
                 <FacetRow

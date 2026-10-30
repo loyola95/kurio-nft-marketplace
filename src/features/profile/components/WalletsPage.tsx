@@ -68,10 +68,15 @@ function WalletForm({
 }) {
   const save = useSaveWallet(slot)
   const form = useForm<FormValues>({ resolver: resolver as never, defaultValues: initial })
-  const { errors } = form.formState
+  const { errors, isDirty } = form.formState
   const e = (k: keyof FormValues) => errors[k]?.message
 
   const submit = form.handleSubmit((values) => {
+    // Carteira já cadastrada e nada alterado: "salva" seria um falso aviso de sucesso.
+    if (wallet && !isDirty) {
+      onSaved('Nenhuma alteração para salvar.')
+      return
+    }
     save.mutate(
       { id: wallet?.id, input: values as WalletInput },
       {
@@ -182,7 +187,7 @@ function WalletForm({
         <button
           type="submit"
           disabled={save.isPending}
-          className="h-10 w-[131px] rounded-[3px] bg-primary text-sm leading-4 font-bold text-primary-foreground hover:bg-highlight disabled:opacity-60"
+          className="h-10 min-w-[131px] rounded-[3px] bg-primary px-6 text-sm leading-4 font-bold whitespace-nowrap text-primary-foreground hover:bg-highlight disabled:opacity-60"
         >
           {save.isPending ? 'Salvando…' : 'Salvar carteira'}
         </button>
