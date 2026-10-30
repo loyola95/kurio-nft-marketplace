@@ -112,6 +112,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+  /* A lista aberta de um <select> nativo usa o fundo do sistema (branco) e herdava o texto
+     claro do site: as opções ficavam quase invisíveis. Fundo e texto do tema em todas. */
+  option {
+    background-color: var(--kurio-surface);
+    color: var(--foreground);
+  }
+  option:disabled {
+    color: var(--kurio-text-3);
+  }
   html {
     @apply font-mono;
     -webkit-text-size-adjust: 100%;

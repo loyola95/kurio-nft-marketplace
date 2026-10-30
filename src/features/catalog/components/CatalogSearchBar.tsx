@@ -42,6 +42,7 @@ export function CatalogSearchBar({ className }: { className?: string }) {
         <input
           id={id}
           type="search"
+          maxLength={60}
           value={term}
           onChange={(e) => setTerm(e.target.value)}
           placeholder="Explorar coleções"

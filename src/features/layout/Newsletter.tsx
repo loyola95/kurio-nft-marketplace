@@ -40,6 +40,7 @@ export function Newsletter() {
         </label>
         <input
           id={inputId}
+          maxLength={254}
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}

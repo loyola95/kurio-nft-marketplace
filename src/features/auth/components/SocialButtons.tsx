@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { toast } from 'sonner'
 import { BrandIcon } from '@/components/icon'
 import { cn } from '@/lib/utils'
 
@@ -9,7 +9,7 @@ const PROVIDERS = [
 
 /**
  * "Ou continue com": login social fora do escopo, avisa em vez de simular sucesso. O aviso
- * aparece logo abaixo dos botões, dentro do modal, e não num toast que cobriria o título.
+ * é um toast (canto inferior direito no desktop), visível sem cobrir o título do modal.
  */
 export function SocialButtons({
   className,
@@ -20,7 +20,6 @@ export function SocialButtons({
   dividerClassName?: string
   buttonsClassName?: string
 }) {
-  const [notice, setNotice] = useState('')
   return (
     <div className={cn('flex flex-col gap-3', className)}>
       <div className={cn('flex items-center gap-3', dividerClassName)} aria-hidden>
@@ -35,7 +34,7 @@ export function SocialButtons({
             key={p.id}
             type="button"
             onClick={() =>
-              setNotice(
+              toast.info(
                 `${p.label.replace('Continuar com ', 'Login com ')} não faz parte desta demonstração. Use e-mail e senha.`,
               )
             }
@@ -46,9 +45,6 @@ export function SocialButtons({
           </button>
         ))}
       </div>
-      <p role="status" className="min-h-4 text-center text-xs leading-4 text-highlight">
-        {notice}
-      </p>
     </div>
   )
 }

@@ -12,7 +12,7 @@ import {
   type WalletType,
 } from '@/contracts/wallet'
 import { ErrorState } from '@/features/catalog/components/States'
-import { mapFieldErrors } from '@/lib/forms'
+import { MAX_LENGTH, mapFieldErrors } from '@/lib/forms'
 import { usePageTitle } from '@/lib/usePageTitle'
 import { cn } from '@/lib/utils'
 import { useSaveWallet, useWallets } from '../queries'
@@ -116,6 +116,7 @@ function WalletForm({
           type={opts.type}
           placeholder={opts.placeholder}
           {...form.register(k)}
+          maxLength={MAX_LENGTH[k]}
           className={inputClass(e(k))}
         />
       )}

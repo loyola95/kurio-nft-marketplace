@@ -20,3 +20,27 @@ export function mapFieldErrors<T extends FieldValues>(
   }
   return mapped
 }
+
+/**
+ * Limite de caracteres por campo, aplicado como `maxLength` para o campo parar de aceitar
+ * texto no limite (os schemas também validam). Mesmos valores dos contratos; e-mail segue o
+ * máximo da especificação, senhas e endereços um teto folgado.
+ */
+export const MAX_LENGTH: Record<string, number | undefined> = {
+  displayName: 40,
+  username: 24,
+  email: 254,
+  walletNickname: 40,
+  nickname: 40,
+  profileName: 40,
+  referralCode: 20,
+  address: 64,
+  ensOrSecondary: 64,
+  ensName: 36,
+  note: 280,
+  password: 64,
+  confirm: 64,
+  currentPassword: 64,
+  newPassword: 64,
+  confirmPassword: 64,
+}

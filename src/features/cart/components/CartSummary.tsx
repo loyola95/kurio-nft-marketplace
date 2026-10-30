@@ -72,6 +72,7 @@ export function CouponForm({ cart }: { cart: Cart }) {
           value={code}
           onChange={(e) => setCode(e.target.value)}
           placeholder="Digite o código promocional..."
+          maxLength={20}
           autoComplete="off"
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}

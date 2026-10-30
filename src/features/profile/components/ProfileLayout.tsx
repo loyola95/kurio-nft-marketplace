@@ -9,7 +9,8 @@ type Item = { label: string; icon: IconName } & (
   | { to: '/indisponivel'; de: string }
 )
 
-// Ordem e ícones do "Account Sidebar" do Figma. Itens fora do escopo vão para /indisponivel.
+// Ordem e ícones do "Account Sidebar" do Figma. Itens fora do escopo da entrega ficam no
+// menu, apagados e sem navegar, com a etiqueta "fora da demo": a pessoa continua no perfil.
 const ITEMS: Item[] = [
   { label: 'Dados do perfil', icon: 'user', to: '/perfil' },
   { label: 'Carteiras', icon: 'location', to: '/perfil/carteiras' },
@@ -34,31 +35,49 @@ export function ProfileLayout() {
   }, [pathname])
   const active = (item: Item) => item.to !== '/indisponivel' && pathname === item.to
 
-  const link = (item: Item, mobile: boolean) => (
-    <Link
-      to={item.to}
-      search={'de' in item ? { de: item.de } : undefined}
-      // Exato: senão o Link marca "Dados do perfil" (/perfil) como atual em todas as subpáginas.
-      activeOptions={{ exact: true }}
-      aria-current={active(item) ? 'page' : undefined}
-      className={cn(
-        'flex items-center text-[15px] text-highlight transition-colors hover:text-foreground',
-        mobile
-          ? cn(
-              'h-10 shrink-0 gap-2 rounded-full border px-4 whitespace-nowrap',
-              active(item) ? 'border-primary bg-primary/10' : 'border-border',
-            )
-          : cn(
-              'relative h-[45px] gap-3 px-4 leading-[45px]',
-              active(item) &&
-                'before:absolute before:inset-y-0 before:left-0 before:w-1.5 before:bg-primary',
-            ),
-      )}
-    >
-      <Icon name={item.icon} size={18} />
-      {item.label}
-    </Link>
-  )
+  const link = (item: Item, mobile: boolean) =>
+    'de' in item ? (
+      <span
+        className={cn(
+          // relative: o texto só para leitor de tela é absoluto e não pode escapar da faixa rolável.
+          'relative flex cursor-not-allowed items-center text-[15px] text-text-3 opacity-60',
+          mobile
+            ? 'h-10 shrink-0 gap-2 rounded-full border border-border px-4 whitespace-nowrap'
+            : 'h-[45px] gap-3 px-4 leading-[45px]',
+        )}
+      >
+        <Icon name={item.icon} size={18} />
+        <span>{item.label}</span>
+        <span className="rounded-sm border border-border px-1.5 text-[10px] leading-4 tracking-wide uppercase">
+          fora da demo
+        </span>
+        <span className="sr-only">: não faz parte desta demonstração</span>
+      </span>
+    ) : (
+      <Link
+        to={item.to}
+        search={'de' in item ? { de: item.de } : undefined}
+        // Exato: senão o Link marca "Dados do perfil" (/perfil) como atual em todas as subpáginas.
+        activeOptions={{ exact: true }}
+        aria-current={active(item) ? 'page' : undefined}
+        className={cn(
+          'flex items-center text-[15px] text-highlight transition-colors hover:text-foreground',
+          mobile
+            ? cn(
+                'h-10 shrink-0 gap-2 rounded-full border px-4 whitespace-nowrap',
+                active(item) ? 'border-primary bg-primary/10' : 'border-border',
+              )
+            : cn(
+                'relative h-[45px] gap-3 px-4 leading-[45px]',
+                active(item) &&
+                  'before:absolute before:inset-y-0 before:left-0 before:w-1.5 before:bg-primary',
+              ),
+        )}
+      >
+        <Icon name={item.icon} size={18} />
+        {item.label}
+      </Link>
+    )
 
   const logoutButton = (mobile: boolean) => (
     <button
@@ -95,7 +114,8 @@ export function ProfileLayout() {
         </ul>
       </nav>
 
-      <div className="min-w-0 flex-1">
+      {/* No celular a barra de navegação fica por cima do fim da página: espaço para ela. */}
+      <div className="min-w-0 flex-1 pb-28 lg:pb-0">
         <Outlet />
       </div>
     </div>

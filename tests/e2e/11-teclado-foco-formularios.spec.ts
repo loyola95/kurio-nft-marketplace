@@ -159,13 +159,18 @@ test.describe('fora do escopo da demonstração', () => {
     await expect(unavailable(page)).toBeVisible()
   })
 
-  test('itens do perfil fora do escopo levam à página "indisponível"', async ({ page }) => {
+  test('itens do perfil fora do escopo ficam desabilitados, sem sair do perfil', async ({
+    page,
+  }) => {
     await open(page, '/entrar?redirect=/perfil')
     await login(page, 'ana')
     await expect(page).toHaveURL(/\/perfil$/)
-    await page.getByRole('link', { name: 'Ofertas' }).filter({ visible: true }).click()
-    await expect(page).toHaveURL(/\/indisponivel/)
-    await expect(unavailable(page)).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Ofertas' })).toHaveCount(0)
+    const item = page.getByText('Ofertas', { exact: true }).filter({ visible: true })
+    await expect(item).toBeVisible()
+    await expect(page.getByText('fora da demo').filter({ visible: true }).first()).toBeVisible()
+    await item.click({ force: true })
+    await expect(page).toHaveURL(/\/perfil$/)
   })
 
   test('"Esqueceu a senha?" e login social avisam que não fazem parte, sem simular sucesso', async ({

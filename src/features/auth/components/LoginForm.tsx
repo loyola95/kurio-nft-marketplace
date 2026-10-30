@@ -2,21 +2,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { login } from '@/api/endpoints/auth'
 import { isApiError } from '@/api/errors'
 import { LoginInput } from '@/contracts/auth'
-import { mapFieldErrors } from '@/lib/forms'
+import { MAX_LENGTH, mapFieldErrors } from '@/lib/forms'
 import { cn } from '@/lib/utils'
 import { useCompleteAuth } from '../useCompleteAuth'
 import { AuthField, type AuthVariant } from './AuthField'
 
-/** Dica de acesso da demonstração, vinda da configuração (o componente não guarda credenciais). */
-const DEMO_HINT = import.meta.env.VITE_DEMO_HINT?.trim()
-
 export function LoginForm({ variant, redirect }: { variant: AuthVariant; redirect?: string }) {
   const complete = useCompleteAuth()
   const [formError, setFormError] = useState<string | null>(null)
-  const [forgotNotice, setForgotNotice] = useState('')
   const form = useForm<LoginInput>({
     resolver: zodResolver(LoginInput),
     defaultValues: { email: '', password: '' },
@@ -45,11 +42,6 @@ export function LoginForm({ variant, redirect }: { variant: AuthVariant; redirec
       })}
       className="flex flex-col"
     >
-      {DEMO_HINT && (
-        <p className="mb-3 rounded-[5px] border border-border-strong bg-surface-3 px-3 py-2 text-center text-xs leading-5 text-text-2">
-          {DEMO_HINT}
-        </p>
-      )}
       <div className="flex flex-col gap-3">
         <AuthField
           variant={variant}
@@ -59,6 +51,7 @@ export function LoginForm({ variant, redirect }: { variant: AuthVariant; redirec
           placeholder="contato@email.com"
           error={errors.email?.message}
           {...form.register('email')}
+          maxLength={MAX_LENGTH.email}
         />
         <AuthField
           variant={variant}
@@ -68,20 +61,15 @@ export function LoginForm({ variant, redirect }: { variant: AuthVariant; redirec
           placeholder="Senha"
           error={errors.password?.message}
           {...form.register('password')}
+          maxLength={MAX_LENGTH.password}
         />
         <button
           type="button"
-          onClick={() =>
-            setForgotNotice('A recuperação de senha não faz parte desta demonstração.')
-          }
+          onClick={() => toast.info('A recuperação de senha não faz parte desta demonstração.')}
           className="self-end text-sm leading-4 text-highlight hover:underline"
         >
           Esqueceu a senha?
         </button>
-        {/* Aviso no próprio formulário, perto do link (um toast cobriria o título do modal). */}
-        <p role="status" className="text-right text-xs leading-4 text-highlight empty:hidden">
-          {forgotNotice}
-        </p>
       </div>
       {formError && (
         <p role="alert" className="mt-4 text-center text-sm text-danger">

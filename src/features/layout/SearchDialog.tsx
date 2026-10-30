@@ -52,7 +52,7 @@ export function SearchDialog() {
           </label>
           <Input
             id={inputId}
-
+            maxLength={60}
             type="search"
             value={term}
             onChange={(e) => setTerm(e.target.value)}

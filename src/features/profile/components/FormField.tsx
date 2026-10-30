@@ -1,6 +1,7 @@
 import { useId, useState, type ComponentProps, type ReactNode } from 'react'
 import { Icon } from '@/components/icon'
 import { cn } from '@/lib/utils'
+import { MAX_LENGTH } from '@/lib/forms'
 import { inputClass } from './formStyles'
 
 interface FieldProps {
@@ -143,6 +144,7 @@ export function EnsControl({
       <input
         {...props}
         value={name}
+        maxLength={MAX_LENGTH.ensName}
         onBlur={onBlur}
         onChange={(e) => onChange(e.target.value.trim() ? `${e.target.value.trim()}.eth` : '')}
         className={inputClass(error)}

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { register as registerAccount } from '@/api/endpoints/auth'
 import { RegisterInput } from '@/contracts/auth'
-import { mapFieldErrors } from '@/lib/forms'
+import { MAX_LENGTH, mapFieldErrors } from '@/lib/forms'
 import { cn } from '@/lib/utils'
 import { useCompleteAuth } from '../useCompleteAuth'
 import { AuthField, type AuthVariant } from './AuthField'
@@ -51,6 +51,7 @@ export function RegisterForm({ variant, redirect }: { variant: AuthVariant; redi
           placeholder="Nome de usuário"
           error={errors.username?.message}
           {...form.register('username')}
+          maxLength={MAX_LENGTH.username}
         />
         <AuthField
           variant={variant}
@@ -60,6 +61,7 @@ export function RegisterForm({ variant, redirect }: { variant: AuthVariant; redi
           placeholder="Digite seu e-mail"
           error={errors.email?.message}
           {...form.register('email')}
+          maxLength={MAX_LENGTH.email}
         />
         <AuthField
           variant={variant}
@@ -69,6 +71,7 @@ export function RegisterForm({ variant, redirect }: { variant: AuthVariant; redi
           placeholder="Senha"
           error={errors.password?.message}
           {...form.register('password')}
+          maxLength={MAX_LENGTH.password}
         />
         <AuthField
           variant={variant}
@@ -80,6 +83,7 @@ export function RegisterForm({ variant, redirect }: { variant: AuthVariant; redi
           placeholder="Confirmar senha"
           error={errors.confirm?.message}
           {...form.register('confirm')}
+          maxLength={MAX_LENGTH.confirm}
         />
       </div>
       {formError && (

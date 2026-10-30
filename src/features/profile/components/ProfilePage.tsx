@@ -15,7 +15,7 @@ import {
 import { ErrorState } from '@/features/catalog/components/States'
 import { useSession } from '@/features/auth/session'
 import { drafts } from '@/lib/drafts'
-import { mapFieldErrors } from '@/lib/forms'
+import { MAX_LENGTH, mapFieldErrors } from '@/lib/forms'
 import { usePageTitle } from '@/lib/usePageTitle'
 import {
   useChangePassword,
@@ -219,6 +219,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
             <input
               {...a}
               {...form.register('displayName')}
+              maxLength={MAX_LENGTH.displayName}
               className={inputClass(errors.displayName?.message)}
             />
           )}
@@ -229,6 +230,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               {...a}
               autoComplete="username"
               {...form.register('username')}
+              maxLength={MAX_LENGTH.username}
               className={inputClass(errors.username?.message)}
             />
           )}
@@ -240,6 +242,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               type="email"
               autoComplete="email"
               {...form.register('email')}
+              maxLength={MAX_LENGTH.email}
               className={inputClass(errors.email?.message)}
             />
           )}
@@ -266,6 +269,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
             <input
               {...a}
               {...form.register('walletNickname')}
+              maxLength={MAX_LENGTH.walletNickname}
               className={inputClass(errors.walletNickname?.message)}
             />
           )}
@@ -281,6 +285,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               {...a}
               autoComplete="current-password"
               {...form.register('currentPassword')}
+              maxLength={MAX_LENGTH.currentPassword}
               error={errors.currentPassword?.message}
               fieldName="senha atual"
             />
@@ -292,6 +297,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               {...a}
               autoComplete="new-password"
               {...form.register('newPassword')}
+              maxLength={MAX_LENGTH.newPassword}
               error={errors.newPassword?.message}
               fieldName="nova senha"
             />
@@ -303,6 +309,7 @@ function ProfileForm({ profile, userId }: { profile: Profile; userId: string }) 
               {...a}
               autoComplete="new-password"
               {...form.register('confirmPassword')}
+              maxLength={MAX_LENGTH.confirmPassword}
               error={errors.confirmPassword?.message}
               fieldName="confirmação da senha"
             />

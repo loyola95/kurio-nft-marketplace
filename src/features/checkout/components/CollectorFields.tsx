@@ -7,6 +7,7 @@ import { EnsControl, FormField, SelectControl } from '@/features/profile/compone
 import { inputClass } from '@/features/profile/components/formStyles'
 import { cn } from '@/lib/utils'
 import { leftForOtherOrders, unitsLabel, type NetworkOption } from '../model'
+import { MAX_LENGTH } from '@/lib/forms'
 import type { Cart } from '@/contracts/cart'
 
 /** No frame o campo começa logo abaixo da faixa de 29px do rótulo (linhas a cada 81px). */
@@ -40,7 +41,12 @@ export function CollectorFields({
   const errors = formState.errors
   const err = (name: keyof CollectorForm) => errors[name]?.message
   const reg = (name: keyof CollectorForm) => (control: { id: string }) => (
-    <input {...control} {...register(name)} className={inputClass(err(name))} />
+    <input
+      {...control}
+      {...register(name)}
+      maxLength={MAX_LENGTH[name]}
+      className={inputClass(err(name))}
+    />
   )
 
   const other = wallet?.slot === 'secondary' ? wallets.primary : wallets.secondary
@@ -114,6 +120,7 @@ export function CollectorFields({
             <input
               {...c}
               {...register('email')}
+              maxLength={MAX_LENGTH.email}
               type="email"
               autoComplete="email"
               className={inputClass(err('email'))}
@@ -136,6 +143,7 @@ export function CollectorFields({
             <input
               {...c}
               {...register('ensOrSecondary')}
+              maxLength={MAX_LENGTH.ensOrSecondary}
               placeholder="ENS ou carteira secundária (opcional)"
               className={inputClass(err('ensOrSecondary'))}
             />
@@ -215,6 +223,7 @@ export function CollectorFields({
           <textarea
             {...c}
             {...register('note')}
+            maxLength={MAX_LENGTH.note}
             rows={6}
             className={cn(
               inputClass(err('note')),

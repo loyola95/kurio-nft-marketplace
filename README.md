@@ -34,7 +34,6 @@ O `.env` versionado já tem os valores da demonstração, que são os mesmos do 
 | `VITE_API_BASE_URL`    | `/api`                      | base da API REST                                                   |
 | `VITE_REALTIME_URL`    | `wss://realtime.kurio.mock` | endereço do Socket.IO                                              |
 | `VITE_HTTP_TIMEOUT_MS` | `8000`                      | timeout das requisições do cliente                                 |
-| `VITE_DEMO_HINT`       | texto com o acesso de teste | dica de acesso da demonstração mostrada no login (opcional)        |
 
 ## Credenciais fictícias
 
@@ -42,6 +41,8 @@ O `.env` versionado já tem os valores da demonstração, que são os mesmos do 
 | ----------------- | ----------- | ------------------------------------------------------------------- |
 | `ana@kurio.dev`   | `Kurio@123` | perfil completo, carteiras Principal (Ethereum) e Reserva (Polygon) |
 | `bruno@kurio.dev` | `Kurio@123` | segunda conta, para testar troca de usuário e isolamento            |
+
+As credenciais ficam só neste README: a tela de login segue o Figma e não mostra acesso de teste.
 
 Cupons: `KURIO10` (10% de desconto), `GENESIS` (0.05 ETH fixo) e `VERAO2025` (expirado, para ver a mensagem de erro).
 
