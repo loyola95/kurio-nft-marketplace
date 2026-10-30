@@ -54,6 +54,22 @@ Relatórios (HTML, com o JSON ao lado):
 
 Desktop atinge todas as metas nas duas páginas. No mobile, Accessibility, Best Practices e SEO ficam em 100 e o CLS em zero, mas Performance fica em 52, abaixo da meta de 90. As causas abaixo foram medidas com perfil de CPU e com variações descartáveis do build, cada uma com 3 medições, antes de qualquer mudança.
 
+### Resumo: por que a Performance mobile parece baixa
+
+O 52 diz mais sobre a máquina em que a auditoria rodou do que sobre o site. O perfil mobile do Lighthouse não usa um celular de verdade: ele pega a CPU do computador e a deixa 4 vezes mais lenta. Esse multiplicador supõe um computador rápido, e esta máquina é um notebook de 2015 (Intel i5-5200U, 8 GB). O `benchmarkIndex`, a nota que o Lighthouse dá para a CPU antes de medir, ficou entre 659 e 1270, e o próprio Lighthouse registrou o aviso "The tested device appears to have a slower CPU than Lighthouse expects". Dividida por 4, essa CPU vira um celular bem mais lento do que o celular de referência do perfil, e é isso que derruba o TBT (786 a 904 ms) e, com ele, a nota.
+
+Três medições do mesmo build mostram o peso da máquina:
+
+| Onde e como | Performance mobile | TBT |
+| --- | ---: | ---: |
+| Esta máquina, perfil padrão (CPU 4x), medição oficial | 52 e 52 | 904 e 786 ms |
+| Esta máquina, CPU 2x (calibração indicada pela documentação do Lighthouse para essa faixa de `benchmarkIndex`) | 69 e 65 | 228 e 350 ms |
+| PageSpeed Insights, nas máquinas do Google, contra o deploy (29/10/2026) | 93 | n/d |
+
+O WebPageTest, também contra o deploy, mediu 25 ms de TBT e 1,15 s de LCP.
+
+Sobra uma parte que é da arquitetura da demonstração, e não do ambiente: a imagem que define o LCP vem da resposta de `/api/nfts`, e essa resposta só existe depois que o navegador baixa e registra o backend simulado (MSW, cerca de 64 KB comprimidos, mais o service worker). Num site com API real esse trecho sai do caminho crítico. Os detalhes estão nas seções seguintes.
+
 ### O que foi otimizado
 
 Ponto de partida: build do commit f6497b6. Para a Início mobile, mediana de 3 medições. Para a Início desktop, 2 medições. Para o detalhe, a medição da Tarefa 18, com o mesmo build e nas mesmas condições.
@@ -77,7 +93,7 @@ A suíte Playwright completa passou depois das três mudanças: 188 testes passa
 - **O `vite preview` serve por HTTP/1.1.** FCP (~3,5 s) e LCP (~5 s) quase não mudam entre 4x e 2x, então não vêm da CPU. A página baixa cerca de 330 KB de JavaScript em uns 30 arquivos antes do primeiro render, e o preview entrega as 60 requisições por HTTP/1.1. O modo `simulate` reproduz o limite de 6 conexões desse protocolo, e os scripts entram em fila. Para isolar essa causa, o mesmo Lighthouse, na mesma máquina e com o mesmo perfil mobile, rodou contra o deploy na Vercel (`https://kurio-nfts.vercel.app/`, 3 medições da Início). Lá, 58 de 61 requisições usam HTTP/2. O FCP caiu para 2,65 s, o LCP para 3,6 s e a Performance subiu para 57 a 62. O TBT continuou alto (1,1 a 1,5 s) por causa da CPU desta máquina.
 - **O LCP depende da API mockada.** A imagem de maior área vem da resposta de `/api/nfts`, e essa resposta só existe depois do MSW ativo, do worker registrado (em toda medição, porque o armazenamento começa limpo) e do app montado.
 
-Então a nota mobile local vem de duas causas do ambiente de medição: o HTTP/1.1 do preview e a CPU lenta. Nenhuma delas é um limite da aplicação. Como referência externa, o PageSpeed Insights deu 93 de Performance no mobile para o deploy, em 29/10/2026, com 100 em Accessibility, Best Practices e SEO. A auditoria versionada continua sendo a local, porque é reproduzível com `pnpm lighthouse`. Registrar o PageSpeed com link e 3 medições por página fica como pendência.
+Então a nota mobile local vem principalmente de duas causas do ambiente de medição, o HTTP/1.1 do preview e a CPU lenta, somadas ao backend simulado no caminho crítico do LCP, que é próprio da demonstração. Como referência externa, o PageSpeed Insights deu 93 de Performance no mobile para o deploy, em 29/10/2026, com 100 em Accessibility, Best Practices e SEO. A auditoria versionada continua sendo a local, porque é reproduzível com `pnpm lighthouse`.
 
 ### Testado e descartado
 

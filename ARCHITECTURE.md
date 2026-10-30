@@ -239,6 +239,8 @@ O CI (`.github/workflows/ci.yml`) roda typecheck, lint e testes unitários e dep
 
 A auditoria Lighthouse está versionada em `lighthouse/` e roda com `pnpm lighthouse`. O resumo, com mediana de 3 medições, ambiente, otimizações feitas e a explicação do resultado mobile, está em [reports/lighthouse/RESULTS.md](reports/lighthouse/RESULTS.md).
 
+Desktop fica em 97 nas duas páginas, e Accessibility, Best Practices e SEO ficam em 100 em todas as combinações. A Performance mobile medida localmente (52) reflete principalmente a máquina da auditoria: o perfil mobile deixa a CPU 4 vezes mais lenta, e num notebook i5-5200U (`benchmarkIndex` de 659 a 1270, com aviso do próprio Lighthouse) isso vira um celular bem mais lento que o de referência. O mesmo build fez 65 e 69 com a CPU calibrada para essa máquina e 93 no PageSpeed Insights. A parte que é da demonstração, o backend simulado no caminho do LCP, está explicada no `RESULTS.md`.
+
 ## Limitações conhecidas
 
 - O backend roda no navegador. Os dados ficam no `localStorage` de cada navegador e não são compartilhados entre pessoas nem entre dispositivos.
