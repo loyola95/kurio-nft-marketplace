@@ -14,7 +14,7 @@ type Item = { label: string; icon: IconName } & (
 const ITEMS: Item[] = [
   { label: 'Dados do perfil', icon: 'user', to: '/perfil' },
   { label: 'Carteiras', icon: 'location', to: '/perfil/carteiras' },
-  { label: 'Atividade', icon: 'shop', to: '/indisponivel', de: 'atividade' },
+  { label: 'Atividade', icon: 'cart', to: '/indisponivel', de: 'atividade' },
   { label: 'Lista de interesse', icon: 'heart-outline', to: '/perfil/favoritos' },
   { label: 'Ofertas', icon: 'activity', to: '/indisponivel', de: 'ofertas' },
   { label: 'Arquivos baixados', icon: 'download', to: '/indisponivel', de: 'downloads' },

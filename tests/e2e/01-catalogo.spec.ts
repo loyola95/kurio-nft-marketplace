@@ -126,4 +126,22 @@ test.describe('catálogo', () => {
     await page.getByRole('button', { name: 'Limpar filtros' }).last().click()
     await expect(catalogCards(page).first()).toContainText('Emerald Ape #042')
   })
+
+  test('arrastar o destaque do topo para os lados troca o NFT', async ({ page }) => {
+    await open(page)
+    const second = page
+      .getByRole('button', { name: /^Mostrar destaque 2/ })
+      .filter({ visible: true })
+    await expect(second).toHaveAttribute('aria-pressed', 'false')
+    const hero = page.locator('section[aria-labelledby^="hero"]').filter({ visible: true })
+    const box = (await hero.boundingBox())!
+    const y = box.y + box.height / 2
+    // Arrasta da direita para a esquerda: próximo destaque.
+    await page.mouse.move(box.x + box.width - 30, y)
+    await page.mouse.down()
+    await page.mouse.move(box.x + box.width - 160, y, { steps: 8 })
+    await page.mouse.up()
+    await expect(second).toHaveAttribute('aria-pressed', 'true')
+    await expect(page).toHaveURL(/\/(\?.*)?$/)
+  })
 })

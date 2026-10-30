@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import { Icon } from '@/components/icon'
 import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,12 +8,51 @@ import { cn } from '@/lib/utils'
 import { featuredOptions } from '../queries'
 import { NftImage } from './NftImage'
 
-/** Destaques do topo (desktop e tablet). A arte troca pelos indicadores; sem autoplay. */
+/**
+ * Arrastar para os lados troca o destaque (dedo ou mouse), além dos indicadores. Um arrasto
+ * de mais de 40px na horizontal muda de slide e cancela o clique que viria em seguida, para
+ * não abrir o NFT sem querer; o rolar da página na vertical continua livre (pan-y).
+ */
+function useSwipe(count: number, setIndex: Dispatch<SetStateAction<number>>) {
+  const start = useRef<{ x: number; y: number } | null>(null)
+  const swiped = useRef(false)
+  return {
+    style: { touchAction: 'pan-y' } as const,
+    onPointerDown: (e: React.PointerEvent) => {
+      start.current = { x: e.clientX, y: e.clientY }
+      swiped.current = false
+    },
+    onPointerUp: (e: React.PointerEvent) => {
+      const s = start.current
+      start.current = null
+      if (!s || count < 2) return
+      const dx = e.clientX - s.x
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(e.clientY - s.y)) {
+        swiped.current = true
+        setIndex((i) => (i + (dx < 0 ? 1 : -1) + count) % count)
+      }
+    },
+    onPointerCancel: () => {
+      start.current = null
+    },
+    onClickCapture: (e: React.MouseEvent) => {
+      if (swiped.current) {
+        e.preventDefault()
+        e.stopPropagation()
+        swiped.current = false
+      }
+    },
+    onDragStart: (e: React.DragEvent) => e.preventDefault(),
+  }
+}
+
+/** Destaques do topo (desktop e tablet). A arte troca pelos indicadores ou arrastando; sem autoplay. */
 export function Hero() {
   const { data, isError } = useQuery(featuredOptions)
   const [index, setIndex] = useState(0)
   const slides = data?.hero ?? []
   const current = slides[index]
+  const swipe = useSwipe(slides.length, setIndex)
 
   return (
     <section
@@ -62,7 +101,10 @@ export function Hero() {
           </div>
         )}
       </div>
-      <div className="aspect-square w-[340px] shrink-0 lg:w-[450px]">
+      <div
+        {...swipe}
+        className="aspect-square w-[340px] shrink-0 cursor-grab select-none lg:w-[450px]"
+      >
         {current ? (
           <Link to="/nft/$nftId" params={{ nftId: current.id }} className="block">
             <NftImage
@@ -93,9 +135,11 @@ export function MobileHero() {
   const slides = data?.hero ?? []
   const current = slides[index]
   const next = slides.length > 1 ? slides[(index + 1) % slides.length] : undefined
+  const swipe = useSwipe(slides.length, setIndex)
 
   return (
     <section
+      {...swipe}
       aria-labelledby="hero-mobile-titulo"
       className="relative h-[190px] overflow-hidden rounded-[30px] bg-[linear-gradient(135deg,rgb(210_138_76/0.2),rgb(210_138_76/0.1))] md:hidden"
     >
