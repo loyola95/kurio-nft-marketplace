@@ -1,6 +1,139 @@
-# Desvios e ajustes em relação ao Figma
+# Arquitetura
 
-Registro acumulado durante a implementação. Consolidado no ARCHITECTURE.md.
+Este documento explica como o Kurio está organizado e por que cada decisão foi tomada. Setup e comandos estão no [README](README.md). Os contratos detalhados estão em [docs/contratos-rest.md](docs/contratos-rest.md) e [docs/eventos.md](docs/eventos.md).
+
+## Camadas
+
+```
+src/
+  contracts/   schemas Zod e tipos compartilhados (fonte única dos contratos)
+  api/         cliente HTTP (axios), identidade (token e carrinho de visitante), erros, endpoints
+  realtime/    socket, aplicação idempotente de eventos, reconciliação
+  features/    telas e regras de interface por domínio (catálogo, nft, carrinho, checkout, perfil...)
+  components/  UI base (shadcn/ui ajustado aos tokens do Figma)
+  routes/      rotas do TanStack Router (arquivos), com loaders e validação de search params
+  app/         QueryClient, router, providers
+  lib/         utilitários sem domínio (dinheiro com big.js, storage, idempotência)
+  mocks/       backend simulado: banco, regras de domínio, handlers REST, servidor Socket.IO, cenários
+```
+
+A regra mais importante é que a aplicação não conhece os mocks. `features/`, `api/`, `realtime/` e `routes/` não importam nada de `mocks/`, e uma regra de lint (`no-restricted-imports` no `.oxlintrc.json`) bloqueia isso no CI, então componentes e hooks não têm dado fictício nem ramo do tipo "se for mock". Trocar o MSW por um backend real é trocar a URL da API.
+
+`contracts/` fica embaixo de tudo e não depende de nada do app. O cliente e o mock importam os mesmos schemas Zod, pois assim uma mudança de contrato quebra os dois lados no `typecheck` em vez de quebrar em produção.
+
+`mocks/` é escrito como um servidor. As regras de negócio (estoque, cotação, cupom, idempotência e estados do pedido) ficam em `mocks/domain/` como funções puras com testes unitários, e os handlers só traduzem HTTP para essas funções. O painel de cenários (`features/devtools/`) fala apenas com `/api/__mock/*`, como qualquer outro cliente, só aparece com `VITE_ENABLE_MOCKS=true` e é baixado quando alguém chega perto do botão.
+
+### Inicialização
+
+`main.tsx` inicia o MSW (`worker.start()`) e só depois importa o app. O `socket.io-client` precisa ser importado depois que a interceptação de WebSocket existe ([detalhes](docs/eventos.md#transporte-no-mock)). Para essa espera não atrasar a página, o build injeta `modulepreload` dos chunks do app (plugin `preloadAppChunks` no `vite.config.ts`). Assim eles são baixados enquanto o MSW sobe, sem executar antes da hora.
+
+O service worker registrado é o `public/mockWorker.js`. Ele deixa scripts, imagens e fontes irem direto para a rede e só repassa ao MSW o que é da API. O motivo e as medições estão em [reports/lighthouse/RESULTS.md](reports/lighthouse/RESULTS.md).
+
+## Estado: onde mora cada coisa
+
+| Estado                                                       | Onde                                      | Por quê                                                                  |
+| ------------------------------------------------------------ | ----------------------------------------- | ------------------------------------------------------------------------ |
+| Filtros, busca, ordenação, aba e página do catálogo          | URL (search params validados com Zod)     | link compartilhável, refresh e voltar/avançar funcionam sem código extra |
+| Dados do servidor (catálogo, NFT, carrinho, perfil, pedidos) | TanStack Query                            | cache, deduplicação, cancelamento e retry num lugar só                   |
+| Sessão                                                       | token no `localStorage` + query `session` | sobrevive a refresh; a senha nunca é guardada                            |
+| Carrinho                                                     | API (por conta ou por `X-Cart-Id`)        | preço, estoque e cupom são calculados num lugar só                       |
+| Rascunhos de formulário (perfil, pagamento)                  | `sessionStorage`                          | sobrevivem à expiração da sessão e ao refresh da aba                     |
+| Chave de idempotência da compra                              | `sessionStorage`                          | um refresh no meio do envio reaproveita a mesma chave                    |
+
+As query keys de dados privados começam com `['user', userId, ...]`. Trocar de usuário nunca mostra o cache do anterior, mesmo antes do refetch.
+
+## Política de sessão
+
+Login e cadastro devolvem `{ token, expiresAt }`, e o token vai no header `Authorization: Bearer`. A sessão dura 2 horas (60 s no cenário `sessao-expirada`). Ao abrir o app, `GET /auth/session` confirma o token, e se ele já venceu a pessoa simplesmente volta a ser visitante, sem mensagem de erro.
+
+As rotas privadas (`/perfil`, `/pagamento` e `/pedidos/:id`) mandam para `/entrar?redirect=<rota atual>`. O `redirect` só aceita caminho interno, pois um redirecionamento aberto deixaria qualquer link externo usar o login do Kurio como trampolim. No desktop, login e cadastro abrem como modal sobre a Início; no mobile são telas próprias, como no Figma.
+
+Quando a sessão vence no meio do uso, qualquer requisição que receba `SESSION_EXPIRED` ou `UNAUTHENTICATED` aciona um handler único (`useAuthErrorHandler`). Ele limpa os dados privados, mantém os rascunhos dos formulários e leva ao login com o aviso de sessão expirada e o retorno para a página atual. Se várias requisições falham ao mesmo tempo, o tratamento acontece uma vez só. Depois de entrar de novo, a pessoa volta para onde estava com o formulário preenchido, e nenhuma mutation é reaplicada sozinha (quem decide salvar de novo é a pessoa).
+
+Logout e troca de usuário limpam o cache privado, geram uma identidade nova para o carrinho de visitante e fecham o socket da sessão anterior.
+
+## Carrinho
+
+O carrinho mora na API, e não no navegador, pois preço, estoque e cupom precisam ser calculados num lugar só. O visitante tem um carrinho identificado pelo header `X-Cart-Id` (um UUID guardado no `localStorage`), e a conta tem o dela. No login, se o carrinho de visitante tem itens, `POST /cart/merge` junta tudo no da conta, e o que passar do disponível é cortado com um aviso `merge_trimmed`.
+
+Toda resposta traz o carrinho inteiro já calculado: preço atual, `maxQuantity`, status de cada linha, avisos e resumo. O cliente não refaz conta de preço. O que ele faz é limitar a quantidade digitada a um inteiro entre 1 e o máximo antes de enviar, mostrando a mensagem do ajuste.
+
+Quando preço ou estoque mudam, o evento `nft.updated` marca o carrinho para revalidação. A linha passa a mostrar o preço antigo riscado ou o novo limite, e um aviso visível (e anunciado para leitor de tela) explica o que mudou. A taxa do resumo é a da rede, pois cada pedido é de uma rede só.
+
+## Checkout
+
+1. Carteira: a pessoa escolhe uma carteira cadastrada no perfil, e a rede vem dela. A conexão é simulada pela API (`POST /wallet-connections`), com sucesso, recusa (`carteira-recusada`) ou desconexão (painel).
+2. Cotação: `POST /quotes` congela linhas, desconto, taxa e total por 5 minutos e tem versão.
+3. Revisão: um painel mostra linhas, taxa, total, carteira e rede antes do envio. Se a cotação venceu (inclusive depois de um refresh), o app pede uma nova cotação e uma nova confirmação.
+4. Envio: `POST /orders` com `Idempotency-Key`. A chave nasce no primeiro clique em "Confirmar compra" daquela cotação, carteira e rede, e é reaproveitada em clique repetido, timeout ou refresh, então o reenvio devolve o mesmo pedido em vez de criar outro. Se preço, estoque, cupom ou taxa mudaram, a API responde `QUOTE_STALE` com a cotação nova, e a pessoa confirma de novo.
+5. Pedido: nasce `pending`. A confirmação ou a recusa chega por `order.updated`. A página `/pedidos/:id` funciona com acesso direto e refresh. Enquanto o socket está fora, um pedido pendente é acompanhado por polling de 5 s. Ao confirmar, só os itens comprados saem do carrinho.
+
+## Cache, retries e sincronização
+
+Configuração em `src/app/queryClient.ts`, ajustada por recurso nas `queryOptions`:
+
+| Recurso                                               | `staleTime` | Observação                                      |
+| ----------------------------------------------------- | ----------- | ----------------------------------------------- |
+| Catálogo e detalhe                                    | 30 s        | atualizados por evento entre um refetch e outro |
+| Destaques, relacionados, favoritos, perfil, carteiras | 60 s        | mudam pouco ou só pela própria pessoa           |
+| Carrinho, pedidos                                     | 0           | sempre revalidados ao montar                    |
+| Sessão, conexão de carteira no checkout               | infinito    | mudam só por ação explícita                     |
+
+Leituras tentam de novo até 2 vezes, esperando 500 ms e depois 1 s, mas só em falha transitória (rede, timeout, 500 e 503), pois um 4xx volta igual por mais que se repita. Mutations nunca repetem sozinhas, para não duplicar operação; o reenvio do pedido é uma ação da pessoa e é protegido pela chave de idempotência. Cada requisição tem timeout de 8 s (`VITE_HTTP_TIMEOUT_MS`).
+
+A query key do catálogo inclui todos os filtros, então uma resposta antiga cai na key antiga e nunca sobrescreve a grade atual, e o TanStack Query ainda cancela a requisição anterior pelo `signal`. O `refetchOnWindowFocus` fica desligado, pois a sincronização vem dos eventos e da reconciliação.
+
+### Atualização otimista: favoritos
+
+Favoritar muda o coração na hora (`onMutate` cancela as queries e grava o novo estado). Se a API falha, o estado anterior volta (rollback) com um aviso acessível. No fim, a lista é revalidada. O cenário `favorito-falha` reproduz o rollback.
+
+## Reconciliação entre REST e Socket.IO
+
+A API REST é a fonte da verdade, e os eventos servem para a tela ficar atualizada sem refetch. Para os dois não brigarem, NFT, carrinho e pedido carregam `version` tanto nas respostas REST quanto nos eventos, e um evento só é aplicado se for mais novo do que o que já está no cache. Assim um evento atrasado não desfaz uma resposta REST mais recente, e uma resposta antiga não desfaz um evento.
+
+Eventos repetidos (mesmo `id`) são descartados, e um pedido `confirmed` ou `declined` nunca volta para `pending`. O `order.updated` só é entregue ao dono do pedido, o cliente descarta qualquer um de outro usuário e cada sessão tem o próprio socket, então um evento da conta anterior não chega à seguinte.
+
+Depois de uma queda de conexão, o cliente invalida catálogo, detalhe, carrinho e pedidos do usuário, pois os eventos perdidos durante a queda não voltam. Queries fora da tela só revalidam quando forem usadas de novo. O evento de NFT também não corrige o carrinho direto, ele só marca o carrinho para revalidar, pois limites e avisos são calculados pela API.
+
+## Transporte Socket.IO no mock e limitações
+
+O `@mswjs/socket.io-binding` implementa o protocolo do Socket.IO sobre o WebSocket interceptado pelo MSW. Um spike antes da implementação mostrou três limitações, todas contornadas e descritas em [docs/eventos.md](docs/eventos.md#transporte-no-mock):
+
+- o binding ignora o pacote de autenticação do Socket.IO, então o token vai na query da conexão;
+- o binding não envia ping, então o servidor simulado envia o heartbeat a cada 10 s;
+- não há salas (rooms), então o servidor filtra as conexões pelo `userId` antes de emitir.
+
+Só o transporte WebSocket é usado (`transports: ['websocket']`), pois o long polling iria para a rede.
+
+## Decisões de UX
+
+O URL é o estado do catálogo. Busca, filtros, ordenação e página sobrevivem a refresh e funcionam com voltar e avançar, e mudar um filtro volta para a página 1.
+
+Os skeletons têm o tamanho do conteúdo final na grade, no detalhe e no resumo do carrinho, por isso o CLS medido ficou entre 0 e 0,007. Com movimento reduzido, o brilho do skeleton é desligado.
+
+Toda falha de leitura diz o que aconteceu e oferece "Tentar novamente". Filtro sem resultado oferece limpar os filtros, e carrinho vazio ou lista de interesse vazia levam de volta ao catálogo.
+
+Nada que está fora do escopo finge funcionar. Links de blog, ajuda, criadores e itens do perfil que o enunciado não pede levam a `/indisponivel`, que explica que aquilo não faz parte da demonstração. "Esqueceu a senha?", login social e newsletter avisam o mesmo, sem simular sucesso, e os links de redes sociais abrem em nova aba com `rel="noopener noreferrer"`. Pelo mesmo motivo, o hash do pedido não tem link para explorer de blockchain (a transação é simulada e não deve parecer real).
+
+Mudanças em tempo real aparecem na tela e são anunciadas numa região `aria-live` quando um item do carrinho muda de preço ou esgota. Mudança causada pela própria compra da pessoa não gera aviso.
+
+## Acessibilidade
+
+O primeiro Tab da página é o link "Pular para o conteúdo", e cada página tem landmarks e um `h1`. O foco é visível em tudo (contorno de 2px na cor de destaque), e modais e gavetas prendem o foco, fecham com Esc e devolvem o foco para o botão que os abriu.
+
+Todo campo tem label associado, visualmente oculto onde o Figma só desenha placeholder, e os erros são ligados ao campo por `aria-describedby`. Num envio inválido, o foco vai para o primeiro erro.
+
+O estado dos filtros não depende só da cor (WCAG 1.4.1), e os alvos de toque têm pelo menos 24px (WCAG 2.5.8). As combinações de cor do Figma já passavam AA, com menor razão de 5,22:1, então a paleta ficou como está. Os testes cobrem teclado, foco, rótulos e zoom de 200% sem rolagem horizontal (`tests/e2e/11-teclado-foco-formularios.spec.ts` e `responsivo.spec.ts`), e o Lighthouse marca 100 em Accessibility nas páginas auditadas.
+
+## Assets
+
+Os ícones são os SVGs do próprio arquivo do Figma (set Iconly), sem nenhuma substituição. O arquivo tem só 4 artes de NFT, então o catálogo simulado as reutiliza, exportadas em WebP com 320, 640 e 960 px de largura e servidas com `srcset`.
+
+A fonte é a Roboto Mono, auto-hospedada em WOFF2 (pesos 400, 500 e 700, só latin) com `font-display: swap`. Isso tira a dependência do Google Fonts e diminui a diferença de renderização entre sistemas na regressão visual.
+
+## Desvios e ajustes em relação ao Figma
+
+Cada diferença entre o Figma e a implementação, com o motivo. A maioria vem de exigências do enunciado (labels, revisão antes do envio, simulação de falhas), de estados que o Figma não desenha ou de larguras sem frame (tablet).
 
 | Tela                                                        | Figma                                                                      | Implementação                                                                                                                                                                            | Motivo                                                                                                                 |
 | ----------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -72,3 +205,25 @@ Registro acumulado durante a implementação. Consolidado no ARCHITECTURE.md.
 | Login e cadastro (desktop)                                  | Modal sem escurecer a Início; raio 0 no login e 8 no cadastro              | Início atrás escurecida (30%) e levemente desfocada; raio 8 nos dois                                                                                                                     | Comentário #8 do Figma: o modal ganha foco visual; um componente para as duas abas                                     |
 | Início: faixa de preço                                      | Slider e texto "Preço: 0,02 - 12,30 ETH"                                   | Mesmo texto, com os dois números editáveis (digitar move o slider, Enter aplica, valores fora da faixa são corrigidos)                                                                   | Comentário #60 do Figma: precisão sem arrastar, principalmente no celular; a composição do frame não muda              |
 | Indicadores do destaque (Início) e de "Mais desta coleção"  | Bolinhas a 6px (mobile) e 8px (desktop) uma da outra                       | Mesmo tamanho, 24px entre os centros                                                                                                                                                     | WCAG 2.5.8 (tamanho do alvo): área de toque de 24px sem sobrepor a vizinha                                             |
+
+## Testes
+
+Os 85 testes unitários (Vitest) cobrem contratos, aritmética de dinheiro, as regras de domínio do mock (carrinho, cupom, cotação, idempotência e pedidos) e a aplicação de eventos.
+
+Os testes e2e (Playwright) seguem as seções do enunciado em 13 grupos, mais responsividade e regressão visual, e rodam no Chromium em desktop (1440px) e mobile (390px). Cada teste começa num contexto novo, com armazenamento vazio, e escolhe o cenário pela URL, e o próprio teste controla o relógio (`page.clock`), a latência (pelo cenário) e o disparo dos eventos (`/__mock/*`). A regressão visual captura Início, Detalhe, Carrinho e Pagamento em desktop e mobile, com relógio fixo, fontes e imagens carregadas e animações desligadas, e tem baselines para Windows e Linux.
+
+O CI (`.github/workflows/ci.yml`) roda typecheck, lint e testes unitários e depois a suíte e2e completa na imagem oficial do Playwright, guardando o relatório e os traces como artefato.
+
+## Performance
+
+A auditoria Lighthouse está versionada em `lighthouse/` e roda com `pnpm lighthouse`. O resumo, com mediana de 3 medições, ambiente, otimizações feitas e a explicação do resultado mobile, está em [reports/lighthouse/RESULTS.md](reports/lighthouse/RESULTS.md).
+
+## Limitações conhecidas
+
+- O backend roda no navegador. Os dados ficam no `localStorage` de cada navegador e não são compartilhados entre pessoas nem entre dispositivos.
+- Duas abas abertas não se sincronizam, pois cada aba carrega o banco simulado na memória e grava por cima, e os eventos de uma aba não chegam à outra. Para testar o tempo real, use o painel de cenários na mesma aba.
+- Os mocks dependem do service worker, então um navegador que bloqueia service workers (como alguns modos privados) não carrega a API simulada.
+- O Lighthouse mobile rodado localmente fica abaixo de 90, por causa do HTTP/1.1 do `vite preview` e da CPU da máquina usada, como explica o `RESULTS.md`. No deploy, o PageSpeed Insights mediu 93 no mobile.
+- Não há baselines visuais para macOS (o README explica como gerar).
+- O pacote de sufixos públicos de domínio (`tldts`), que o cookie store do MSW usa, foi trocado por uma versão mínima para reduzir o bundle. O app não usa cookies, então isso não tem efeito, mas o casamento de domínio de cookie seria impreciso em sufixos compostos como `.com.br`.
+- A faixa de tablet (768 a 1023px) não tem frame no Figma. Os layouts dessa faixa são adaptações e estão na tabela de desvios.
